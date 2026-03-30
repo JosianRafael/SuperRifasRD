@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>Super Rifas RD</title>
+	<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<!-- FAVICON (dinámico) -->
+	<link rel="icon" type="image/png" id="dynamicFavicon" href="">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+	
+	<!-- NAVBAR - VERSIÓN MÁS PEQUEÑA -->
+		<nav id="navbar" class="navbar fixed-top navbar-expand-lg navbar-header navbar-mobile">
+			<div class="navbar-container container">
+				<!-- LOGO (circular) -->
+				<div class="navbar-brand">
+				<a class="navbar-brand-logo" href="#">
+					<img id="navbarLogo" src="" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+				</a>
+				</div>
+				<button class="navbar-toggler" 
+						type="button" 
+						data-toggle="collapse" 
+						data-target="#navbarNav" 
+						aria-controls="navbarNav" 
+						aria-expanded="false" 
+						aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+				</button>
+				<div class="collapse navbar-collapse justify-content-around" id="navbarNav">
+					<ul class="navbar-nav menu-navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link" href="#top">
+								<p class="nav-link-menu">INICIO</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#pagos">
+								<p class="nav-link-menu">CUENTAS DE PAGO</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#footer">
+								<p class="nav-link-menu">CONTACTO</p>
+							</a>
+						</li>
+					</ul>
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link learn-more-btn btn-invert" href="#eventos">Rifas</a>
+						</li>
+						<li class="nav-item">
+							<i class="fa fa-user-circle user-icon" id="userIcon" style="font-size: 24px; cursor: pointer; color: #1c8200;"></i>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+        <br>
+        <br>
+    <!-- SECTION LABEL -->
+	<div id="top"></div>
+	
+	<!-- WRAPPER -->
+	<div class="wrapper">
+		<!-- HERO SECTION - NUEVO DISEÑO MODERNO (dinámico) -->
+		<section class="hero-section">
+			<div class="container hero-container">
+				<div class="row align-items-center">
+					<div class="col-lg-6">
+						<div class="hero-badge">
+							Sorteos que cambian vidas
+						</div>
+						<h1 class="hero-title">
+							<span class="hero-title-gradient" id="siteName">Super Rifas RD</span>
+						</h1>
+						<div class="hero-location">
+							<i class="fa fa-map-marker"></i>
+							<span id="siteLocation">
+Samaná, Francisco del Rosario Sánchez, detrás del mercado</span>
+						</div>
+						<p class="hero-description" id="siteDescription">
+							Empresa dedicada a Sorteos.
+						</p>
+						<div class="hero-ceo">
+							<i class="fa fa-user-circle"></i>
+							<span id="siteCeo">CEO: @Super_Rifas_RD</span>
+						</div>
+						<a class="hero-button" href="#eventos">
+							<span>LISTA DE DISPONIBLES</span>
+							<i class="fa fa-arrow-right"></i>
+						</a>
+					</div>
+					<div class="col-lg-6">
+						<div class="hero-image">
+							<img id="heroBanner" src="" alt="Banner">
+							<div class="hero-image-badge">
+								<i class="fa fa-trophy"></i>
+								<span>¡Tú puedes ser el próximo ganador!</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- SECTION LABEL -->
+		<div id="eventos"></div>
+		
+		<!-- DISPONIBLES SECTION -->
+		<div class="clients-section">
+			<div class="container clients-container pt-4">
+				<div class="clients-title-section">
+					<p class="clients-subtitle">¡ Participa !</p>
+					<h2 class="clients-title">Disponibles</h2>
+					<p class="services-text" style="max-width: 600px; margin: 0 auto 15px;">¡No te pierdas la oportunidad de ganar increíbles premios! Participa en nuestras rifas activas.</p>
+					<div id="adminControls" style="display:none; margin-top: 15px;">
+						<button class="learn-more-btn" onclick="openAddRaffleModal()">➕ Agregar Rifa</button>
+					</div>
+				</div>
+				<div class="clients-slider">
+					<div id="rafflesContainer" class="raffles-grid-container">
+						<div style="text-align:center; grid-column:1/-1; padding: 40px;">
+							<div class="loading-spinner" style="width:35px; height:35px; border-width:3px; border-color:#1c8200; border-top-color:transparent;"></div>
+							<p style="margin-top:8px;">Cargando rifas...</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- SECTION LABEL -->
+		<div id="news"></div>
+		
+		<!-- FINALIZADOS SECTION -->
+		<div class="finished-section">
+			<div class="container">
+				<div class="finished-title-section">
+					<p class="finished-subtitle">Historial de Eventos</p>
+					<h2 class="finished-title">Finalizados</h2>
+					<p class="finished-description">Revive nuestros sorteos anteriores y conoce a los ganadores</p>
+				</div>
+				
+				<div id="finishedRafflesContainer" class="raffles-grid-container">
+					<div style="text-align:center; grid-column:1/-1; padding: 40px;">
+						<div class="loading-spinner" style="width:35px; height:35px; border-width:3px; border-color:#1c8200; border-top-color:transparent;"></div>
+						<p style="margin-top:8px;">Cargando rifas finalizadas...</p>
+					</div>
+				</div>
+				
+				<div id="pagination-container" class="pagination-container" style="margin-top: 40px;">
+					<nav aria-label="Page navigation">
+						<ul class="pagination">
+							<li class="page-item active">
+								<span class="page-link">1</span>
+							</li>
+							<li class="page-item">
+								<a class="page-link" data-remote="true" href="/?page=2">2</a>
+							</li>
+							<li class="page-item disabled">
+								<span class="page-link">...</span>
+							</li>
+							<li class="page-item">
+								<a class="page-link" data-remote="true" href="/?page=17">17</a>
+							</li>
+							<li class="page-item">
+								<a class="page-link" data-remote="true" href="/?page=2">&gt;</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+		
+		<!-- SECTION LABEL -->
+		<div id="contact"></div>
+		
+		<!-- CUENTAS DE PAGO -->
+		<div id="pagos" class="payment-accounts-section">
+			<div class="container">
+				<div class="payment-header">
+					<span class="payment-badge">Métodos de Pago</span>
+					<h2 class="payment-title">Cuentas de Pago</h2>
+					<p class="payment-description">Elige el método que prefieras y realiza tu pago de forma segura</p>
+					<div id="adminAccountControls" style="display:none; margin-top: 15px;">
+						<button class="learn-more-btn" onclick="openAddAccountModal()">➕ Agregar Cuenta Bancaria</button>
+					</div>
+				</div>
+				
+				<div id="accountsContainer" class="accounts-grid">
+					<div style="text-align:center; grid-column:1/-1; padding: 40px;">
+						<div class="loading-spinner" style="width:35px; height:35px; border-width:3px; border-color:#1c8200; border-top-color:transparent;"></div>
+						<p style="margin-top:8px;">Cargando cuentas de pago...</p>
+					</div>
+				</div>
+				
+				<div class="whatsapp-button">
+					<a id="whatsappMainButton" class="whatsapp-btn" rel="nofollow noopener noreferrer" target="_blank" href="#">
+						<i class="fa fa-whatsapp"></i> Contactar por WhatsApp
+					</a>
+				</div>
+			</div>
+		</div>
+		
+		<!-- FOOTER PRINCIPAL (dinámico) -->
+		<div id="footer" class="footer-section">
+			<div class="container footer-container">
+
+				<!-- LOGO (circular) -->
+				<div class="footer-logo">
+					<img id="footerLogo" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
+					<h3 id="footerSiteName" class="footer-subsection-title clientLegalName">Super_Rifas_RD</h3>
+					<p class="footer-subsection-text">Sorteos que cambian vidas.</p>
+				</div>
+
+				<!-- NOSOTROS -->
+				<div class="footer-subsection">
+					<div class="footer-subsection-2-1">
+						<h3 class="footer-subsection-title">Nosotros</h3>
+						<p id="footerDescription" class="footer-subsection-text">
+							Tu oportunidad de ganar comienza aquí. Especialistas en sorteos y rifas que sí cumplen. Tu suerte empieza aqui!
+						</p>
+						<p id="footerCeo" style="margin-top:8px; font-size:12px; opacity:0.7;">CEO: @Super_Rifas_RD</p>
+					</div>
+				</div>
+
+				<!-- CONTACTO -->
+				<div class="footer-subsection">
+					<h3 class="footer-subsection-title">Contacto</h3>
+					<ul class="footer-subsection-list">
+						<li class="webClient">
+						</li>
+						<li id="footerLocation">Samaná, Francisco del Rosario Sánchez, detrás del mercado</li>
+						<li id="footerPhone">+1 8295026484</li>
+					</ul>
+				</div>
+
+				<!-- REDES -->
+				<div class="footer-subsection">
+					<div class="footer-subsection-2-2">
+						<h3 class="footer-subsection-title">Síguenos</h3>
+						<div class="footer-social-media-icons-section">
+							<a id="instagramLink" href="#" target="_blank" class="footer-social-media-icon">
+								<i class="fa fa-instagram"></i>
+							</a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- FOOTER CREDITS -->
+			<div class="container footer-credits">
+				<p>
+					<span class="legalLinks">
+						<a href="legal/termsCondResp.html" target="_blank">Condiciones</a> |
+						<a href="legal/termsCondResp.html" target="_blank">Privacidad</a> |
+						<a href="legal/termsCondResp.html" target="_blank">Responsabilidad</a>
+					</span>
+					<br/>
+					© 2025 Todos los derechos reservados.
+				</p>
+			</div>
+		</div>
+
+	<!-- Botones flotantes - EL BOTÓN DE CONFIGURACIÓN SE MUESTRA SOLO SI EL USUARIO ESTÁ LOGUEADO -->
+	<div class="float-buttons">
+		<a id="whatsappFloat" href="#" 
+		   class="float-btn whatsapp-float" 
+		   target="_blank" 
+		   rel="noopener noreferrer">
+			<i class="fa fa-whatsapp"></i>
+		</a>
+		<button id="settingsButton" class="float-btn settings-float" onclick="openConfigModal()" style="display: none;">
+			<i class="fa fa-gear"></i>
+		</button>
+	</div>
+	
+	<!-- Modal para Login -->
+	<div id="loginModal" class="modal" style="display:none;">
+		<div class="modal-content">
+						<div class="modal-header">
+				<h3>Iniciar Sesión</h3>
+				<span class="close" onclick="closeLoginModal()">&times;</span>
+			</div>
+			<form id="loginForm">
+				<div class="form-group">
+					<label>Email</label>
+					<input type="email" id="loginEmail" required placeholder="@">
+				</div>
+				<div class="form-group">
+					<label>Contraseña</label>
+					<input type="password" id="loginPassword" required placeholder="********">
+				</div>
+				<button type="submit" class="btn-primary" id="loginBtn">Ingresar</button>
+			</form>
+		</div>
+	</div>
+	
+	<!-- Modal para Agregar/Editar Rifa con campo PRECIO, MÁXIMO y MÍNIMO DE BOLETOS POR PERSONA -->
+	<div id="raffleModal" class="modal" style="display:none;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 id="modalTitle">Agregar Rifa</h3>
+				<span class="close" onclick="closeRaffleModal()">&times;</span>
+			</div>
+			<form id="raffleForm">
+				<input type="hidden" id="raffleId">
+				<div class="form-group">
+					<label>Nombre de la Rifa *</label>
+					<input type="text" id="raffleName" required>
+				</div>
+				<div class="form-group">
+					<label>Descripción de la Rifa</label>
+					<textarea id="raffleDescription" rows="3" placeholder="Describe los detalles de la rifa, premios, condiciones, etc..."></textarea>
+				</div>
+				<div class="form-group">
+					<label>Precio de la Boleta (RD$)</label>
+					<input type="number" id="rafflePrice" step="0.01" placeholder="Ej: 100" value="0">
+				</div>
+				<div class="form-group">
+					<label>Mínimo de boletos por persona</label>
+					<input type="number" id="raffleMinPerPerson" step="1" placeholder="Ej: 1" value="1">
+					<small class="text-muted" style="font-size: 11px;">Cantidad mínima de boletos que una persona debe comprar en esta rifa</small>
+				</div>
+				<div class="form-group">
+					<label>Máximo de boletos por persona</label>
+					<input type="number" id="raffleMaxPerPerson" step="1" placeholder="Ej: 10" value="100">
+					<small class="text-muted" style="font-size: 11px;">Cantidad máxima de boletos que una persona puede comprar en esta rifa</small>
+				</div>
+				<div class="form-group">
+					<label>Imagen de la Rifa</label>
+					<div id="imageUploadArea" class="image-upload-area" onclick="document.getElementById('raffleImageFile').click()">
+						<div class="upload-icon">📸</div>
+						<div class="upload-text">Arrastra una imagen o haz clic para seleccionar</div>
+						<div class="upload-text" style="font-size: 11px; margin-top: 4px;">Formatos: JPG, PNG, GIF (Max 5MB)</div>
+					</div>
+					<input type="file" id="raffleImageFile" accept="image/*" style="display: none;" onchange="handleImageSelect(this)">
+					<img id="imagePreview" class="image-preview" alt="Vista previa">
+					<input type="hidden" id="raffleImageUrl">
+				</div>
+				<div class="form-group">
+					<label>Estado</label>
+					<select id="raffleStatus">
+						<option value="available">Disponible (Comprar boletos)</option>
+						<option value="soldout">Agotado</option>
+						<option value="closed">Cerrado</option>
+						<option value="finished">Finalizado</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>Total de Boletos</label>
+					<input type="number" id="raffleTotalTickets" value="10000">
+				</div>
+				<div class="form-group">
+					<label>Fecha (opcional)</label>
+					<input type="text" id="raffleDate" placeholder="Ej: CON LA VENTA DEL 100%">
+				</div>
+				<button type="submit" class="btn-primary" id="saveRaffleBtn">Guardar Rifa</button>
+			</form>
+		</div>
+	</div>
+	
+	<!-- Modal para Agregar/Editar Cuenta Bancaria -->
+	<div id="accountModal" class="modal" style="display:none;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 id="accountModalTitle">Agregar Cuenta Bancaria</h3>
+				<span class="close" onclick="closeAccountModal()">&times;</span>
+			</div>
+			<form id="accountForm">
+				<input type="hidden" id="accountId">
+				<div class="form-group">
+					<label>Nombre del Banco *</label>
+					<input type="text" id="accountBankName" required placeholder="Ej: BANRESERVAS">
+				</div>
+				<div class="form-group">
+					<label>Logo del Banco</label>
+					<div id="accountImageUploadArea" class="image-upload-area" onclick="document.getElementById('accountImageFile').click()">
+						<div class="upload-icon">🏦</div>
+						<div class="upload-text">Arrastra una imagen o haz clic para seleccionar (logo del banco)</div>
+						<div class="upload-text" style="font-size: 11px; margin-top: 4px;">Formatos: JPG, PNG (Max 2MB)</div>
+					</div>
+					<input type="file" id="accountImageFile" accept="image/*" style="display: none;" onchange="handleAccountImageSelect(this)">
+					<img id="accountImagePreview" class="image-preview" alt="Vista previa logo">
+					<input type="hidden" id="accountImageUrl">
+				</div>
+				<div class="form-group">
+					<label>Tipo de Cuenta</label>
+					<input type="text" id="accountType" required placeholder="Ej: CUENTA CORRIENTE / AHORROS">
+				</div>
+				<div class="form-group">
+					<label>Número de Cuenta *</label>
+					<input type="text" id="accountNumber" required placeholder="Ej: 9606870440">
+				</div>
+				<div class="form-group">
+					<label>Titular de la Cuenta *</label>
+					<input type="text" id="accountHolder" required placeholder="Nombre completo del titular">
+				</div>
+				<button type="submit" class="btn-primary" id="saveAccountBtn">Guardar Cuenta</button>
+			</form>
+		</div>
+	</div>
+	
+	<!-- Modal para Configuración General -->
+	<div id="configModal" class="modal" style="display:none;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>Configuración General</h3>
+				<span class="close" onclick="closeConfigModal()">&times;</span>
+			</div>
+			<form id="configForm">
+				<input type="hidden" id="configId">
+				<div class="form-group">
+					<label>Logo del sitio (Navbar) - Circular</label>
+					<div id="logoUploadArea" class="image-upload-area" onclick="document.getElementById('logoImageFile').click()">
+						<div class="upload-icon">🏢</div>
+						<div class="upload-text">Arrastra una imagen o haz clic para seleccionar (logo circular)</div>
+						<div class="upload-text" style="font-size: 11px; margin-top: 4px;">Formatos: JPG, PNG (Max 2MB)</div>
+					</div>
+					<input type="file" id="logoImageFile" accept="image/*" style="display: none;" onchange="handleLogoImageSelect(this)">
+					<img id="logoImagePreview" class="image-preview" alt="Vista previa logo" style="border-radius: 50%;">
+					<input type="hidden" id="logoUrl">
+					<button type="button" class="change-image-btn" onclick="resetLogoImage()">Cambiar imagen</button>
+				</div>
+				<div class="form-group">
+					<label>Banner principal (Hero)</label>
+					<div id="bannerUploadArea" class="image-upload-area" onclick="document.getElementById('bannerImageFile').click()">
+						<div class="upload-icon">🖼️</div>
+						<div class="upload-text">Arrastra una imagen o haz clic para seleccionar (banner)</div>
+						<div class="upload-text" style="font-size: 11px; margin-top: 4px;">Formatos: JPG, PNG (Max 5MB)</div>
+					</div>
+					<input type="file" id="bannerImageFile" accept="image/*" style="display: none;" onchange="handleBannerImageSelect(this)">
+					<img id="bannerImagePreview" class="image-preview" alt="Vista previa banner">
+					<input type="hidden" id="bannerUrl">
+					<button type="button" class="change-image-btn" onclick="resetBannerImage()">Cambiar imagen</button>
+				</div>
+				<div class="form-group">
+					<label>Nombre del sitio *</label>
+					<input type="text" id="configSiteName" required placeholder="Ej: Super Rifas RD">
+				</div>
+				<div class="form-group">
+					<label>Ubicación</label>
+					<input type="text" id="configLocation" placeholder="">
+				</div>
+				<div class="form-group">
+					<label>Descripción</label>
+					<textarea id="configDescription" rows="2" placeholder="Describe tu negocio..."></textarea>
+				</div>
+				<div class="form-group">
+					<label>CEO / Lema</label>
+					<input type="text" id="configCeo" placeholder="Ej: CEO: @Super_Rifas_RD">
+				</div>
+				<div class="form-group">
+					<label>Número de WhatsApp</label>
+					<input type="text" id="configWhatsapp" placeholder="">
+				</div>
+				<div class="form-group">
+					<label>URL de Instagram</label>
+					<input type="text" id="configInstagram" placeholder="Ej: https://www.instagram.com/Super_Rifas_RD">
+				</div>
+				<button type="submit" class="btn-primary" id="saveConfigBtn">Guardar Configuración</button>
+			</form>
+		</div>
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">	
+	
+	<script>
+	// Configuración de Supabase
+	const SUPABASE_URL = 'https://hogbufyfyvntczhfibcw.supabase.co';
+	const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvZ2J1ZnlmeXZudGN6aGZpYmN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjM2NzcsImV4cCI6MjA5MDEzOTY3N30.YnPuE8yvGDDtT48X35Jb9qz9P2nE92KczOvz1ghyPN8';
+	const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+	
+	let currentUser = null;
+	let selectedImageFile = null;
+	let selectedAccountImageFile = null;
+	let selectedLogoImageFile = null;
+	let selectedBannerImageFile = null;
+	
+	// ==================== CONFIGURACIÓN GENERAL ====================
+	
+	function resetLogoImage() {
+		selectedLogoImageFile = null;
+		document.getElementById('logoImagePreview').style.display = 'none';
+		document.getElementById('logoUploadArea').style.display = 'block';
+		document.getElementById('logoUrl').value = '';
+	}
+	
+	function resetBannerImage() {
+		selectedBannerImageFile = null;
+		document.getElementById('bannerImagePreview').style.display = 'none';
+		document.getElementById('bannerUploadArea').style.display = 'block';
+		document.getElementById('bannerUrl').value = '';
+	}
+	
+	async function loadConfig() {
+		try {
+			const { data, error } = await supabaseClient
+				.from('site_config')
+				.select('*')
+				.limit(1)
+				.single();
+			
+			if (error && error.code !== 'PGRST116') throw error;
+			
+			if (data) {
+				applyConfig(data);
+				document.getElementById('configId').value = data.id;
+				document.getElementById('configSiteName').value = data.site_name || '';
+				document.getElementById('configLocation').value = data.location || '';
+				document.getElementById('configDescription').value = data.description || '';
+				document.getElementById('configCeo').value = data.ceo || '';
+				document.getElementById('configWhatsapp').value = data.whatsapp || '';
+				document.getElementById('configInstagram').value = data.instagram_url || '';
+				document.getElementById('logoUrl').value = data.logo_url || '';
+				document.getElementById('bannerUrl').value = data.banner_url || '';
+				
+				if (data.logo_url) {
+					document.getElementById('logoImagePreview').src = data.logo_url;
+					document.getElementById('logoImagePreview').style.display = 'block';
+					document.getElementById('logoUploadArea').style.display = 'none';
+				}
+				if (data.banner_url) {
+					document.getElementById('bannerImagePreview').src = data.banner_url;
+					document.getElementById('bannerImagePreview').style.display = 'block';
+					document.getElementById('bannerUploadArea').style.display = 'none';
+				}
+			}
+		} catch (error) {
+			console.error('Error loading config:', error);
+		}
+	}
+	
+	function applyConfig(config) {
+		// Navbar logo - circular
+		if (config.logo_url) {
+			document.getElementById('navbarLogo').src = config.logo_url;
+			document.getElementById('footerLogo').src = config.logo_url;
+			document.querySelector('link[rel="icon"]').href = config.logo_url;
+		}
+		// Hero banner
+		if (config.banner_url) {
+			document.getElementById('heroBanner').src = config.banner_url;
+		}
+		// Textos
+		document.getElementById('siteName').textContent = config.site_name || 'Super Rifas RD';  
+		document.getElementById('footerSiteName').textContent = config.site_name || 'Super Rifas RD';
+		document.getElementById('siteLocation').textContent = config.location || 'Samaná, Francisco del Rosario Sánchez, detrás del mercado';
+		document.getElementById('footerLocation').textContent = config.location || 'Samaná, Francisco del Rosario Sánchez, detrás del mercado';
+		document.getElementById('siteDescription').textContent = config.description || 'Empresa dedicada a Sorteos ';
+		document.getElementById('footerDescription').textContent = config.description || 'Empresa dedicada a sorteos ';
+		document.getElementById('siteCeo').textContent = config.ceo || 'CEO: @Super_Rifas_RD';
+		document.getElementById('footerCeo').textContent = config.ceo || 'CEO: @Super_Rifas_RD';
+		
+		// WhatsApp
+		if (config.whatsapp) {
+			const whatsappNumber = config.whatsapp.replace(/\D/g, '');
+			const whatsappLink = `https://wa.me/${whatsappNumber}?text=Hola%21%20Me%20interesa%20participar%20en%20las%20rifas%20de%20${encodeURIComponent(config.site_name || '')}`;
+			const whatsappApiLink = `https://api.whatsapp.com/send?phone=${whatsappNumber}`;
+			document.getElementById('whatsappFloat').href = whatsappLink;
+			document.getElementById('whatsappMainButton').href = whatsappApiLink;
+			document.getElementById('footerPhone').textContent = `+${whatsappNumber}`;
+		}
+		
+		// Instagram
+		if (config.instagram_url) {
+			document.getElementById('instagramLink').href = config.instagram_url;
+		}
+	}
+	
+	async function saveConfig(event) {
+		event.preventDefault();
+		
+		if (!currentUser) {
+			Swal.fire('Acceso denegado', 'Debes iniciar sesión como administrador', 'warning');
+			return;
+		}
+		
+		showButtonLoading('saveConfigBtn', 'Guardando...');
+		
+		const id = document.getElementById('configId').value;
+		const site_name = document.getElementById('configSiteName').value;
+		const location = document.getElementById('configLocation').value;
+		const description = document.getElementById('configDescription').value;
+		const ceo = document.getElementById('configCeo').value;
+		const whatsapp = document.getElementById('configWhatsapp').value;
+		const instagram_url = document.getElementById('configInstagram').value;
+		let logo_url = document.getElementById('logoUrl').value;
+		let banner_url = document.getElementById('bannerUrl').value;
+		
+		try {
+			// Subir logo si hay nuevo
+			if (selectedLogoImageFile) {
+				const fileExt = selectedLogoImageFile.name.split('.').pop();
+				const fileName = `logo_${Date.now()}.${fileExt}`;
+				const { data, error } = await supabaseClient.storage
+					.from('site-assets')
+					.upload(fileName, selectedLogoImageFile);
+				if (!error) {
+					const { data: urlData } = supabaseClient.storage
+						.from('site-assets')
+						.getPublicUrl(fileName);
+					logo_url = urlData.publicUrl;
+				}
+			}
+			
+			// Subir banner si hay nuevo
+			if (selectedBannerImageFile) {
+				const fileExt = selectedBannerImageFile.name.split('.').pop();
+				const fileName = `banner_${Date.now()}.${fileExt}`;
+				const { data, error } = await supabaseClient.storage
+					.from('site-assets')
+					.upload(fileName, selectedBannerImageFile);
+				if (!error) {
+					const { data: urlData } = supabaseClient.storage
+						.from('site-assets')
+						.getPublicUrl(fileName);
+					banner_url = urlData.publicUrl;
+				}
+			}
+			
+			const configData = {
+				site_name,
+				location,
+				description,
+				ceo,
+				whatsapp,
+				instagram_url,
+				logo_url,
+				banner_url,
+				updated_at: new Date()
+			};
+			
+			let error;
+			if (id) {
+				const { error: updateError } = await supabaseClient
+					.from('site_config')
+					.update(configData)
+					.eq('id', id);
+				error = updateError;
+			} else {
+				configData.created_at = new Date();
+				const { error: insertError } = await supabaseClient
+					.from('site_config')
+					.insert([configData]);
+				error = insertError;
+			}
+			
+			if (error) throw error;
+			
+			Swal.fire('Guardado', 'Configuración guardada correctamente', 'success');
+			closeConfigModal();
+			loadConfig();
+			
+		} catch (error) {
+			console.error('Error saving config:', error);
+			Swal.fire('Error', 'No se pudo guardar la configuración', 'error');
+		} finally {
+			hideButtonLoading('saveConfigBtn');
+		}
+	}
+	
+	function openConfigModal() {
+		if (!currentUser) {
+			Swal.fire('Acceso denegado', 'Debes iniciar sesión como administrador', 'warning');
+			return;
+		}
+		document.getElementById('configModal').style.display = 'flex';
+	}
+	
+	function closeConfigModal() {
+		document.getElementById('configModal').style.display = 'none';
+	}
+	
+	function handleLogoImageSelect(input) {
+		if (input.files && input.files[0]) {
+			const file = input.files[0];
+			if (!file.type.match('image.*')) {
+				Swal.fire('Error', 'Por favor selecciona una imagen válida', 'error');
+				return;
+			}
+			if (file.size > 2 * 1024 * 1024) {
+				Swal.fire('Error', 'La imagen no puede ser mayor a 2MB', 'error');
+				return;
+			}
+			selectedLogoImageFile = file;
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				const preview = document.getElementById('logoImagePreview');
+				preview.src = e.target.result;
+				preview.style.display = 'block';
+				document.getElementById('logoUploadArea').style.display = 'none';
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+	
+	function handleBannerImageSelect(input) {
+		if (input.files && input.files[0]) {
+			const file = input.files[0];
+			if (!file.type.match('image.*')) {
+				Swal.fire('Error', 'Por favor selecciona una imagen válida', 'error');
+				return;
+			}
+			if (file.size > 5 * 1024 * 1024) {
+				Swal.fire('Error', 'La imagen no puede ser mayor a 5MB', 'error');
+				return;
+			}
+			selectedBannerImageFile = file;
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				const preview = document.getElementById('bannerImagePreview');
+				preview.src = e.target.result;
+				preview.style.display = 'block';
+				document.getElementById('bannerUploadArea').style.display = 'none';
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+	
+	// ==================== CUENTAS DE PAGO ====================
+	
+	function setupAccountDragAndDrop() {
+		const area = document.getElementById('accountImageUploadArea');
+		if (!area) return;
+		
+		area.addEventListener('dragover', (e) => {
+			e.preventDefault();
+			area.classList.add('dragover');
+		});
+		
+		area.addEventListener('dragleave', (e) => {
+			e.preventDefault();
+			area.classList.remove('dragover');
+		});
+		
+		area.addEventListener('drop', (e) => {
+			e.preventDefault();
+			area.classList.remove('dragover');
+			const files = e.dataTransfer.files;
+			if (files.length > 0) {
+				handleAccountImageFile(files[0]);
+			}
+		});
+	}
+	
+	function handleAccountImageSelect(input) {
+		if (input.files && input.files[0]) {
+			handleAccountImageFile(input.files[0]);
+		}
+	}
+	
+	function handleAccountImageFile(file) {
+		if (!file.type.match('image.*')) {
+			Swal.fire('Error', 'Por favor selecciona una imagen válida', 'error');
+			return;
+		}
+		
+		if (file.size > 2 * 1024 * 1024) {
+			Swal.fire('Error', 'La imagen no puede ser mayor a 2MB', 'error');
+			return;
+		}
+		
+		selectedAccountImageFile = file;
+		
+		const reader = new FileReader();
+		reader.onload = function(e) {
+			const preview = document.getElementById('accountImagePreview');
+			preview.src = e.target.result;
+			preview.style.display = 'block';
+			document.getElementById('accountImageUploadArea').style.display = 'none';
+		};
+		reader.readAsDataURL(file);
+	}
+	
+	async function uploadAccountImage(accountId) {
+		if (!selectedAccountImageFile) return null;
+		
+		const fileExt = selectedAccountImageFile.name.split('.').pop();
+		const fileName = `${accountId}_${Date.now()}.${fileExt}`;
+		const filePath = `accounts/${fileName}`;
+		
+		try {
+			const { data, error } = await supabaseClient.storage
+				.from('bank-logos')
+				.upload(filePath, selectedAccountImageFile);
+			
+			if (error) throw error;
+			
+			const { data: urlData } = supabaseClient.storage
+				.from('bank-logos')
+				.getPublicUrl(filePath);
+			
+			return urlData.publicUrl;
+			
+		} catch (error) {
+			console.error('Error uploading account image:', error);
+			return null;
+		}
+	}
+	
+	async function loadAccounts() {
+		try {
+			const { data, error } = await supabaseClient
+				.from('payment_accounts')
+				.select('*')
+				.order('created_at', { ascending: true });
+			
+			if (error) throw error;
+			
+			renderAccounts(data);
+			
+		} catch (error) {
+			console.error('Error loading accounts:', error);
+			const container = document.getElementById('accountsContainer');
+			if (container) {
+				container.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Error al cargar las cuentas de pago</p>';
+			}
+		}
+	}
+	
+	function renderAccounts(accounts) {
+		const container = document.getElementById('accountsContainer');
+		if (!container) return;
+		
+		if (!accounts || accounts.length === 0) {
+			container.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No hay cuentas de pago disponibles</p>';
+			return;
+		}
+		
+		container.innerHTML = accounts.map(account => {
+			let adminActions = '';
+			if (currentUser) {
+				adminActions = `
+					<div class="account-admin-actions">
+						<button class="edit-account-btn" onclick="editAccount('${account.id}')">✏️ Editar</button>
+						<button class="delete-account-btn" onclick="deleteAccount('${account.id}')">🗑️ Eliminar</button>
+					</div>
+				`;
+			}
+			
+			return `
+				<div class="account-card">
+					<div class="account-icon">
+						<img src="${account.logo_url || 'https://via.placeholder.com/50x50?text=Banco'}" alt="${escapeHtml(account.bank_name)}">
+					</div>
+					<h3 class="account-bank-name">${escapeHtml(account.bank_name)}</h3>
+					<span class="account-type">${escapeHtml(account.account_type)}</span>
+					<div class="account-detail">
+						<div class="account-detail-label">Número de Cuenta</div>
+						<div class="account-detail-value">
+							<span>${escapeHtml(account.account_number)}</span>
+							<button onclick="copyToClipboard('${escapeHtml(account.account_number)}')" class="copy-button">Copiar</button>
+						</div>
+					</div>
+					<div class="account-titular">
+						<strong>Titular:</strong> ${escapeHtml(account.holder_name)}
+						<button onclick="copyToClipboard('${escapeHtml(account.holder_name)}')" class="copy-button" style="margin-left: 10px; padding: 3px 8px;">Copiar</button>
+					</div>
+					${adminActions}
+				</div>
+			`;
+		}).join('');
+	}
+	
+	function escapeHtml(text) {
+		if (!text) return '';
+		const div = document.createElement('div');
+		div.textContent = text;
+		return div.innerHTML;
+	}
+	
+	function copyToClipboard(text) {
+		navigator.clipboard.writeText(text);
+		Swal.fire('¡Copiado!', 'Texto copiado al portapapeles', 'success');
+	}
+	
+	function openAddAccountModal() {
+		if (!currentUser) {
+			Swal.fire('Acceso denegado', 'Debes iniciar sesión como administrador', 'warning');
+			return;
+		}
+		document.getElementById('accountModalTitle').textContent = 'Agregar Cuenta Bancaria';
+		document.getElementById('accountId').value = '';
+		document.getElementById('accountForm').reset();
+		selectedAccountImageFile = null;
+		document.getElementById('accountImagePreview').style.display = 'none';
+		document.getElementById('accountImageUploadArea').style.display = 'block';
+		document.getElementById('accountImageUrl').value = '';
+		document.getElementById('accountModal').style.display = 'flex';
+	}
+	
+	function closeAccountModal() {
+		document.getElementById('accountModal').style.display = 'none';
+		selectedAccountImageFile = null;
+	}
+	
+	async function editAccount(id) {
+		if (!currentUser) return;
+		
+		showButtonLoading('saveAccountBtn', 'Cargando...');
+		
+		try {
+			const { data, error } = await supabaseClient
+				.from('payment_accounts')
+				.select('*')
+				.eq('id', id)
+				.single();
+			
+			if (error) throw error;
+			
+			document.getElementById('accountModalTitle').textContent = 'Editar Cuenta Bancaria';
+			document.getElementById('accountId').value = data.id;
+			document.getElementById('accountBankName').value = data.bank_name;
+			document.getElementById('accountType').value = data.account_type;
+			document.getElementById('accountNumber').value = data.account_number;
+			document.getElementById('accountHolder').value = data.holder_name;
+			document.getElementById('accountImageUrl').value = data.logo_url || '';
+			selectedAccountImageFile = null;
+			
+			if (data.logo_url) {
+				const preview = document.getElementById('accountImagePreview');
+				preview.src = data.logo_url;
+				preview.style.display = 'block';
+				document.getElementById('accountImageUploadArea').style.display = 'none';
+			} else {
+				document.getElementById('accountImagePreview').style.display = 'none';
+				document.getElementById('accountImageUploadArea').style.display = 'block';
+			}
+			
+			document.getElementById('accountModal').style.display = 'flex';
+			
+		} catch (error) {
+			console.error('Error loading account:', error);
+			Swal.fire('Error', 'No se pudo cargar la cuenta', 'error');
+		} finally {
+			hideButtonLoading('saveAccountBtn');
+		}
+	}
+	
+	async function deleteAccount(id) {
+		if (!currentUser) return;
+		
+		const result = await Swal.fire({
+			title: '¿Eliminar cuenta bancaria?',
+			text: 'Esta acción no se puede deshacer',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Sí, eliminar',
+			cancelButtonText: 'Cancelar'
+		});
+		
+		if (result.isConfirmed) {
+			Swal.fire({
+				title: 'Eliminando...',
+				text: 'Por favor espera',
+				allowOutsideClick: false,
+				didOpen: () => {
+					Swal.showLoading();
+				}
+			});
+			
+			try {
+				const { error } = await supabaseClient
+					.from('payment_accounts')
+					.delete()
+					.eq('id', id);
+				
+				if (error) throw error;
+				
+				Swal.fire('Eliminada', 'La cuenta ha sido eliminada', 'success');
+				loadAccounts();
+				
+			} catch (error) {
+				console.error('Error deleting account:', error);
+				Swal.fire('Error', 'No se pudo eliminar la cuenta', 'error');
+			}
+		}
+	}
+	
+	async function saveAccount(event) {
+		event.preventDefault();
+		
+		if (!currentUser) {
+			Swal.fire('Acceso denegado', 'Debes iniciar sesión como administrador', 'warning');
+			return;
+		}
+		
+		showButtonLoading('saveAccountBtn', 'Guardando...');
+		
+		const id = document.getElementById('accountId').value;
+		const bank_name = document.getElementById('accountBankName').value;
+		const account_type = document.getElementById('accountType').value;
+		const account_number = document.getElementById('accountNumber').value;
+		const holder_name = document.getElementById('accountHolder').value;
+		let logo_url = document.getElementById('accountImageUrl').value;
+		
+		try {
+			let accountId = id;
+			
+			if (!id) {
+				const { data, error } = await supabaseClient
+					.from('payment_accounts')
+					.insert([{
+						bank_name,
+						account_type,
+						account_number,
+						holder_name,
+						logo_url: '',
+						created_at: new Date(),
+						updated_at: new Date()
+					}])
+					.select()
+					.single();
+				
+				if (error) throw error;
+				accountId = data.id;
+			}
+			
+			if (selectedAccountImageFile) {
+				const uploadedUrl = await uploadAccountImage(accountId);
+				if (uploadedUrl) {
+					logo_url = uploadedUrl;
+				}
+			}
+			
+			const accountData = {
+				bank_name,
+				account_type,
+				account_number,
+				holder_name,
+				logo_url,
+				updated_at: new Date()
+			};
+			
+			const { error } = await supabaseClient
+				.from('payment_accounts')
+				.update(accountData)
+				.eq('id', accountId);
+			
+			if (error) throw error;
+			
+			Swal.fire(id ? 'Actualizada' : 'Creada', `La cuenta ha sido ${id ? 'actualizada' : 'creada'} correctamente`, 'success');
+			closeAccountModal();
+			loadAccounts();
+			
+		} catch (error) {
+			console.error('Error saving account:', error);
+				Swal.fire('Error', 'No se pudo guardar la cuenta', 'error');
+		} finally {
+			hideButtonLoading('saveAccountBtn');
+		}
+	}
+	
+	// ==================== RIFAS ====================
+	
+	function setupDragAndDrop() {
+		const area = document.getElementById('imageUploadArea');
+		if (!area) return;
+		
+		area.addEventListener('dragover', (e) => {
+			e.preventDefault();
+			area.classList.add('dragover');
+		});
+		
+		area.addEventListener('dragleave', (e) => {
+			e.preventDefault();
+			area.classList.remove('dragover');
+		});
+		
+		area.addEventListener('drop', (e) => {
+			e.preventDefault();
+			area.classList.remove('dragover');
+			const files = e.dataTransfer.files;
+			if (files.length > 0) {
+				handleImageFile(files[0]);
+			}
+		});
+	}
+	
+	function handleImageSelect(input) {
+		if (input.files && input.files[0]) {
+			handleImageFile(input.files[0]);
+		}
+	}
+	
+	function handleImageFile(file) {
+		if (!file.type.match('image.*')) {
+			Swal.fire('Error', 'Por favor selecciona una imagen válida', 'error');
+			return;
+		}
+		
+		if (file.size > 5 * 1024 * 1024) {
+			Swal.fire('Error', 'La imagen no puede ser mayor a 5MB', 'error');
+			return;
+		}
+		
+		selectedImageFile = file;
+		
+		const reader = new FileReader();
+		reader.onload = function(e) {
+			const preview = document.getElementById('imagePreview');
+			preview.src = e.target.result;
+			preview.style.display = 'block';
+			document.getElementById('imageUploadArea').style.display = 'none';
+		};
+		reader.readAsDataURL(file);
+	}
+	
+	async function uploadImage(raffleId) {
+		if (!selectedImageFile) return null;
+		
+		const fileExt = selectedImageFile.name.split('.').pop();
+		const fileName = `${raffleId}_${Date.now()}.${fileExt}`;
+		const filePath = `raffles/${fileName}`;
+		
+		try {
+			const { data, error } = await supabaseClient.storage
+				.from('raffle-images')
+				.upload(filePath, selectedImageFile);
+			
+			if (error) throw error;
+			
+			const { data: urlData } = supabaseClient.storage
+				.from('raffle-images')
+				.getPublicUrl(filePath);
+			
+			return urlData.publicUrl;
+			
+		} catch (error) {
+			console.error('Error uploading image:', error);
+			Swal.fire('Error', 'No se pudo subir la imagen', 'error');
+			return null;
+		}
+	}
+	
+	async function loadRaffles() {
+		try {
+			const { data, error } = await supabaseClient
+				.from('raffles')
+				.select('*')
+				.order('created_at', { ascending: false });
+			
+			if (error) throw error;
+			
+			const availableRaffles = data.filter(r => r.status !== 'finished');
+			const finishedRaffles = data.filter(r => r.status === 'finished');
+			
+			renderRaffles(availableRaffles, 'rafflesContainer', false);
+			renderRaffles(finishedRaffles, 'finishedRafflesContainer', true);
+			
+		} catch (error) {
+			console.error('Error loading raffles:', error);
+			Swal.fire('Error', 'No se pudieron cargar las rifas', 'error');
+		}
+	}
+	
+	function renderRaffles(raffles, containerId, isFinished) {
+		const container = document.getElementById(containerId);
+		if (!container) return;
+		
+		if (raffles.length === 0) {
+			container.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No hay rifas disponibles</p>';
+			return;
+		}
+		
+		container.innerHTML = raffles.map(raffle => {
+			const percent = raffle.total_tickets > 0 ? (raffle.sold_tickets * 100 / raffle.total_tickets).toFixed(1) : 0;
+			let badgeClass = '';
+			let badgeText = '';
+			let btnText = 'COMPRAR BOLETOS';
+			let btnDisabled = false;
+			let btnLink = raffle.link || '#';
+			
+			switch(raffle.status) {
+				case 'soldout':
+					badgeClass = 'soldout';
+					badgeText = 'AGOTADO';
+					btnText = '¡ AGOTADO !';
+					btnDisabled = true;
+					break;
+				case 'closed':
+					badgeClass = 'closed';
+					badgeText = 'CERRADO';
+					btnText = '¡ CERRADO !';
+					btnDisabled = true;
+					break;
+				case 'finished':
+					badgeClass = 'finished';
+					badgeText = 'FINALIZADO';
+					btnText = 'VER EVENTO';
+					btnDisabled = false;
+					break;
+				default:
+					badgeClass = 'available';
+					badgeText = 'DISPONIBLE';
+					btnDisabled = false;
+			}
+			
+			let adminActions = '';
+			if (currentUser) {
+				adminActions = `
+					<div class="admin-actions">
+						<button class="edit-btn" onclick="editRaffle('${raffle.id}')">✏️ Editar</button>
+						<button class="delete-btn" onclick="deleteRaffle('${raffle.id}')">🗑️ Eliminar</button>
+					</div>
+				`;
+			}
+			
+			// Formatear precio
+			const priceFormatted = raffle.price ? `RD$ ${parseFloat(raffle.price).toLocaleString('es-DO')}` : '';
+			
+			return `
+				<div class="raffle-card">
+					<div class="raffle-card-image">
+						<img src="${raffle.image_url || 'https://via.placeholder.com/400x400?text=Sin+Imagen'}" alt="${raffle.name}">
+						<div class="raffle-card-badge ${badgeClass}">${badgeText}</div>
+					</div>
+					<div class="raffle-card-content">
+						<h3 class="raffle-card-title">${escapeHtml(raffle.name)}</h3>
+						${priceFormatted ? `<div class="raffle-card-price"><i class="fa fa-ticket"></i> ${priceFormatted}</div>` : ''}
+						<span class="raffle-card-date">🗓️ ${raffle.date || 'CON LA VENTA DEL 100%'}</span>
+						${!isFinished ? `
+							<div class="progress-container">
+								<div class="progress-label">
+									<span>Progreso</span>
+									<span>${percent}%</span>
+								</div>
+								<div class="progress-bar-bg">
+									<div class="progress-bar-fill" style="width: ${percent}%"></div>
+								</div>
+							</div>
+						` : ''}
+						<div class="raffle-card-footer">
+							<a class="raffle-card-btn ${btnDisabled ? 'disabled-btn' : ''}" href="${btnLink}" ${btnDisabled ? 'onclick="return false;"' : ''} onclick="goToRaffleDetail('${raffle.id}')">${btnText}</a>
+						</div>
+						${adminActions}
+					</div>
+				</div>
+			`;
+		}).join('');
+	}
+	
+	// Función para redirigir a la página de detalle de la rifa
+	function goToRaffleDetail(raffleId) {
+		window.location.href = `rifa-detalle.html?id=${raffleId}`;
+	}
+	
+	function openLoginModal() {
+		document.getElementById('loginModal').style.display = 'flex';
+	}
+	
+	function closeLoginModal() {
+		document.getElementById('loginModal').style.display = 'none';
+	}
+	
+	async function handleLogin(email, password) {
+		showButtonLoading('loginBtn', 'Ingresando...');
+		
+		try {
+			const { data, error } = await supabaseClient.auth.signInWithPassword({
+				email: email,
+				password: password
+			});
+			
+			if (error) throw error;
+			
+			currentUser = data.user;
+			Swal.fire('¡Bienvenido!', 'Has iniciado sesión como administrador', 'success');
+			closeLoginModal();
+			document.getElementById('adminControls').style.display = 'block';
+			document.getElementById('adminAccountControls').style.display = 'block';
+			document.getElementById('userIcon').style.color = '#dc3545';
+			// Mostrar el botón de configuración cuando el usuario está logueado
+			document.getElementById('settingsButton').style.display = 'flex';
+			loadRaffles();
+			loadAccounts();
+			
+		} catch (error) {
+			console.error('Login error:', error);
+			Swal.fire('Error', 'Credenciales incorrectas', 'error');
+		} finally {
+			hideButtonLoading('loginBtn');
+		}
+	}
+	
+	async function handleLogout() {
+		try {
+			await supabaseClient.auth.signOut();
+			currentUser = null;
+			Swal.fire('Sesión cerrada', 'Has cerrado sesión correctamente', 'success');
+			document.getElementById('adminControls').style.display = 'none';
+			document.getElementById('adminAccountControls').style.display = 'none';
+			document.getElementById('userIcon').style.color = '#1c8200';
+			// Ocultar el botón de configuración cuando el usuario cierra sesión
+			document.getElementById('settingsButton').style.display = 'none';
+			loadRaffles();
+			loadAccounts();
+		} catch (error) {
+			console.error('Logout error:', error);
+		}
+	}
+	
+	function openAddRaffleModal() {
+		if (!currentUser) {
+			Swal.fire('Acceso denegado', 'Debes iniciar sesión como administrador', 'warning');
+			return;
+		}
+		document.getElementById('modalTitle').textContent = 'Agregar Rifa';
+		document.getElementById('raffleId').value = '';
+		document.getElementById('raffleForm').reset();
+		document.getElementById('rafflePrice').value = '0';
+		document.getElementById('raffleMinPerPerson').value = '1';
+		document.getElementById('raffleMaxPerPerson').value = '100';
+		selectedImageFile = null;
+		document.getElementById('imagePreview').style.display = 'none';
+		document.getElementById('imageUploadArea').style.display = 'block';
+		document.getElementById('raffleImageUrl').value = '';
+		document.getElementById('raffleDescription').value = '';
+		document.getElementById('raffleModal').style.display = 'flex';
+	}
+	
+	function closeRaffleModal() {
+		document.getElementById('raffleModal').style.display = 'none';
+		selectedImageFile = null;
+	}
+	
+	async function editRaffle(id) {
+		if (!currentUser) return;
+		
+		showButtonLoading('saveRaffleBtn', 'Cargando...');
+		
+		try {
+			const { data, error } = await supabaseClient
+				.from('raffles')
+				.select('*')
+				.eq('id', id)
+				.single();
+			
+			if (error) throw error;
+			
+			document.getElementById('modalTitle').textContent = 'Editar Rifa';
+			document.getElementById('raffleId').value = data.id;
+			document.getElementById('raffleName').value = data.name;
+			document.getElementById('raffleDescription').value = data.description || '';
+			document.getElementById('rafflePrice').value = data.price || 0;
+			document.getElementById('raffleMinPerPerson').value = data.min_per_person || 1;
+			document.getElementById('raffleMaxPerPerson').value = data.max_per_person || 100;
+			document.getElementById('raffleImageUrl').value = data.image_url || '';
+			document.getElementById('raffleStatus').value = data.status;
+			document.getElementById('raffleTotalTickets').value = data.total_tickets;
+			document.getElementById('raffleDate').value = data.date || '';
+			selectedImageFile = null;
+			
+			if (data.image_url) {
+				const preview = document.getElementById('imagePreview');
+				preview.src = data.image_url;
+				preview.style.display = 'block';
+				document.getElementById('imageUploadArea').style.display = 'none';
+			} else {
+				document.getElementById('imagePreview').style.display = 'none';
+				document.getElementById('imageUploadArea').style.display = 'block';
+			}
+			
+			document.getElementById('raffleModal').style.display = 'flex';
+			
+		} catch (error) {
+			console.error('Error loading raffle:', error);
+			Swal.fire('Error', 'No se pudo cargar la rifa', 'error');
+		} finally {
+			hideButtonLoading('saveRaffleBtn');
+		}
+	}
+	
+	async function deleteRaffle(id) {
+		if (!currentUser) return;
+		
+		const result = await Swal.fire({
+			title: '¿Eliminar rifa?',
+			text: 'Esta acción no se puede deshacer',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Sí, eliminar',
+			cancelButtonText: 'Cancelar'
+		});
+		
+		if (result.isConfirmed) {
+			Swal.fire({
+				title: 'Eliminando...',
+				text: 'Por favor espera',
+				allowOutsideClick: false,
+				didOpen: () => {
+					Swal.showLoading();
+				}
+			});
+			
+			try {
+				const { error } = await supabaseClient
+					.from('raffles')
+					.delete()
+					.eq('id', id);
+				
+				if (error) throw error;
+				
+				Swal.fire('Eliminada', 'La rifa ha sido eliminada', 'success');
+				loadRaffles();
+				
+			} catch (error) {
+				console.error('Error deleting raffle:', error);
+				Swal.fire('Error', 'No se pudo eliminar la rifa', 'error');
+			}
+		}
+	}
+	
+	async function saveRaffle(event) {
+		event.preventDefault();
+		
+		if (!currentUser) {
+			Swal.fire('Acceso denegado', 'Debes iniciar sesión como administrador', 'warning');
+			return;
+		}
+		
+		showButtonLoading('saveRaffleBtn', 'Guardando...');
+		
+		const id = document.getElementById('raffleId').value;
+		const name = document.getElementById('raffleName').value;
+		const description = document.getElementById('raffleDescription').value;
+		const price = parseFloat(document.getElementById('rafflePrice').value) || 0;
+		const min_per_person = parseInt(document.getElementById('raffleMinPerPerson').value) || 1;
+		const max_per_person = parseInt(document.getElementById('raffleMaxPerPerson').value) || 100;
+		const status = document.getElementById('raffleStatus').value;
+		const total_tickets = parseInt(document.getElementById('raffleTotalTickets').value);
+		const date = document.getElementById('raffleDate').value;
+		
+		// Validar que mínimo no sea mayor que máximo
+		if (min_per_person > max_per_person) {
+			Swal.fire('Error de validación', 'El mínimo de boletos no puede ser mayor que el máximo', 'error');
+			hideButtonLoading('saveRaffleBtn');
+			return;
+		}
+		
+		let image_url = document.getElementById('raffleImageUrl').value;
+		
+		try {
+			let raffleId = id;
+			
+			if (!id) {
+				const { data, error } = await supabaseClient
+					.from('raffles')
+					.insert([{
+						name,
+						description,
+						price,
+						min_per_person,
+						max_per_person,
+						image_url: '',
+						status,
+						total_tickets,
+						sold_tickets: 0,
+						date,
+						created_at: new Date(),
+						updated_at: new Date()
+					}])
+					.select()
+					.single();
+				
+				if (error) throw error;
+				raffleId = data.id;
+			}
+			
+			if (selectedImageFile) {
+				const uploadedUrl = await uploadImage(raffleId);
+				if (uploadedUrl) {
+					image_url = uploadedUrl;
+				}
+			}
+			
+			const raffleData = {
+				name,
+				description,
+				price,
+				min_per_person,
+				max_per_person,
+				image_url,
+				status,
+				total_tickets,
+				date,
+				updated_at: new Date()
+			};
+			
+			const { error } = await supabaseClient
+				.from('raffles')
+				.update(raffleData)
+				.eq('id', raffleId);
+			
+			if (error) throw error;
+			
+			Swal.fire(id ? 'Actualizada' : 'Creada', `La rifa ha sido ${id ? 'actualizada' : 'creada'} correctamente`, 'success');
+			closeRaffleModal();
+			loadRaffles();
+			
+		} catch (error) {
+			console.error('Error saving raffle:', error);
+			Swal.fire('Error', 'No se pudo guardar la rifa', 'error');
+		} finally {
+			hideButtonLoading('saveRaffleBtn');
+		}
+	}
+	
+	function showButtonLoading(buttonId, loadingText = 'Procesando...') {
+		const btn = document.getElementById(buttonId);
+		if (!btn) return;
+		const originalText = btn.innerHTML;
+		btn.dataset.originalText = originalText;
+		btn.innerHTML = `<span class="loading-spinner"></span> ${loadingText}`;
+		btn.disabled = true;
+		btn.classList.add('btn-loading');
+	}
+	
+	function hideButtonLoading(buttonId) {
+		const btn = document.getElementById(buttonId);
+		if (!btn) return;
+		btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+		btn.disabled = false;
+		btn.classList.remove('btn-loading');
+	}
+	
+	// Event Listeners
+	document.getElementById('loginForm').addEventListener('submit', (e) => {
+		e.preventDefault();
+		const email = document.getElementById('loginEmail').value;
+		const password = document.getElementById('loginPassword').value;
+		handleLogin(email, password);
+	});
+	
+	document.getElementById('raffleForm').addEventListener('submit', saveRaffle);
+	document.getElementById('accountForm').addEventListener('submit', saveAccount);
+	document.getElementById('configForm').addEventListener('submit', saveConfig);
+	
+	document.getElementById('userIcon').addEventListener('click', () => {
+		if (currentUser) {
+			handleLogout();
+		} else {
+			openLoginModal();
+		}
+	});
+	
+	// Funciones originales
+	$(window).scroll(function () {
+		if ($(this).scrollTop() > 20) {
+			$('#navbar').addClass('header-scrolled');
+		} else {
+			$('#navbar').removeClass('header-scrolled');
+		}
+	});
+
+	$("#navbarNav").on("click", "a", function () {
+		$(".navbar-toggle").click();
+	});
+
+	$(".nav-item").on("click", "a", function () {
+		$("#navbarNav").removeClass('show');
+	});
+
+	function actionButtonAccounts(action_type, elemnt, text) {
+		if (action_type == 'copy') {
+			$(elemnt).addClass("copied");
+			setTimeout(function () {
+				$(elemnt).removeClass("copied");
+			}, 1200);
+			var sampleTextarea = document.createElement("textarea");
+			document.body.appendChild(sampleTextarea);
+			sampleTextarea.value = text;
+			sampleTextarea.select();
+			document.execCommand("copy");
+			document.body.removeChild(sampleTextarea);
+		} else if (action_type == 'link') {
+			window.open(text, '_blank').focus();
+		}
+	}
+
+	$(document).on('click', '.pagination a', function (e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		$.ajax({
+			url: url,
+			type: 'GET',
+			dataType: 'script'
+		});
+	});
+
+	window.addEventListener('popstate', function () {
+		$.ajax({
+			url: location.href,
+			type: 'GET',
+			dataType: 'script'
+		});
+	});
+	
+	// Inicializar
+	setupDragAndDrop();
+	setupAccountDragAndDrop();
+	
+	// Cargar datos iniciales
+	loadConfig();
+	loadRaffles();
+	loadAccounts();
+	
+	// Verificar sesión existente y mostrar/ocultar botón de configuración según corresponda
+	supabaseClient.auth.getSession().then(({ data: { session } }) => {
+		if (session) {
+			currentUser = session.user;
+			document.getElementById('adminControls').style.display = 'block';
+			document.getElementById('adminAccountControls').style.display = 'block';
+			document.getElementById('userIcon').style.color = '#dc3545';
+			// Mostrar botón de configuración si hay sesión activa
+			document.getElementById('settingsButton').style.display = 'flex';
+			loadRaffles();
+			loadAccounts();
+		} else {
+			// Asegurar que el botón esté oculto si no hay sesión
+			document.getElementById('settingsButton').style.display = 'none';
+		}
+	});
+	
+	</script>
+	
+</body>
+</html>

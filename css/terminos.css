@@ -1,0 +1,249 @@
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #1e2a3e;
+            line-height: 1.6;
+        }
+
+        /* Navbar estilo moderno */
+        .navbar {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            padding: 12px 24px;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand img {
+            width: 120px;
+            transition: transform 0.2s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.02);
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: #1e2a3e !important;
+            margin: 0 6px;
+            transition: 0.2s;
+            border-radius: 50px;
+            padding: 8px 18px !important;
+        }
+
+        .nav-link:hover {
+            background: rgba(28,130,0,0.08);
+            color: #1c8200 !important;
+        }
+
+        .btn-luckday {
+            background: linear-gradient(135deg, #1c8200, #2eaa00);
+            color: white;
+            font-weight: 700;
+            border-radius: 50px;
+            padding: 8px 28px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(28,130,0,0.25);
+        }
+
+        .btn-luckday:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #156a00, #259000);
+            color: white;
+            box-shadow: 0 8px 20px rgba(28,130,0,0.35);
+        }
+
+        /* Hero sección de términos */
+        .legal-hero {
+            background: linear-gradient(135deg, #f0f7ea 0%, #ffffff 100%);
+            padding: 140px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .legal-hero::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(28,130,0,0.03) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .legal-badge {
+            display: inline-block;
+            background: rgba(28,130,0,0.12);
+            color: #1c8200;
+            padding: 6px 20px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .legal-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #050f02;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .legal-subtitle {
+            font-size: 1.2rem;
+            color: #4a5568;
+            max-width: 700px;
+            margin-bottom: 30px;
+        }
+
+        /* Contenido principal */
+        .terms-content {
+            padding: 70px 0 90px;
+        }
+
+        .terms-card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+            padding: 40px 48px;
+            transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #1c8200;
+            margin: 40px 0 20px 0;
+            padding-bottom: 8px;
+            border-bottom: 3px solid rgba(28,130,0,0.2);
+            display: inline-block;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .terms-text {
+            font-size: 1rem;
+            color: #2d3e50;
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+
+        .terms-list {
+            margin: 20px 0 20px 25px;
+            list-style-type: none;
+        }
+
+        .terms-list li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .terms-list li:before {
+            content: "✓";
+            color: #1c8200;
+            font-weight: 800;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.1rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(105deg, #f8fff4 0%, #f0f9ea 100%);
+            border-left: 5px solid #1c8200;
+            padding: 24px 30px;
+            border-radius: 24px;
+            margin: 30px 0;
+        }
+
+        .footer-section {
+            background: linear-gradient(135deg, #0f2f00, #1c8200);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 40px;
+        }
+
+        .footer-links a {
+            color: #e0e7e0;
+            text-decoration: none;
+            margin: 0 12px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            color: #1c8200;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 700;
+            transition: 0.25s;
+            margin-top: 20px;
+            text-decoration: none;
+            border: 1px solid #e2e8f0;
+        }
+
+        .back-home:hover {
+            background: #1c8200;
+            color: white;
+            transform: translateX(-5px);
+            text-decoration: none;
+            border-color: #1c8200;
+        }
+
+        @media (max-width: 768px) {
+            .legal-title {
+                font-size: 2.3rem;
+            }
+            .terms-card {
+                padding: 28px 20px;
+            }
+            .section-title {
+                font-size: 1.6rem;
+            }
+            .navbar {
+                padding: 10px 16px;
+            }
+        }
+
+        .update-date {
+            background: #f1f5f9;
+            border-radius: 60px;
+            padding: 8px 20px;
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1e4620;
+            margin-top: 20px;
+        }
+
+        hr {
+            background: rgba(28,130,0,0.2);
+            margin: 35px 0;
+        }

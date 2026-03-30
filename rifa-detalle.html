@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Super Rifas RD - Compra de Boletos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <link rel="icon" type="image/png" id="dynamicFavicon" href="">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/rifa-detalle.css"> <!-- Css de la pagina rifa-detalle --> 
+</head>
+<body>
+
+<!-- NAVBAR PRINCIPAL -->
+<nav id="navbar" class="navbar fixed-top navbar-expand-lg navbar-header navbar-mobile">
+    <div class="navbar-container container">
+        <div class="navbar-brand">
+            <a class="navbar-brand-logo" href="index.html">
+                <img id="navbarLogo" src="" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+            </a>
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+            <ul class="navbar-nav menu-navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html#top">
+                        <p class="nav-link-menu">INICIO</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html#pagos">
+                        <p class="nav-link-menu">CUENTAS DE PAGO</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html#footer">
+                        <p class="nav-link-menu">CONTACTO</p>
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link learn-more-btn btn-invert" href="index.html#eventos">Rifas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn-back" href="index.html"><i class="fa fa-arrow-left"></i> Volver</a>
+                </li>
+                <li class="nav-item">
+                    <i class="fa fa-user-circle user-icon" id="userIcon" style="font-size: 24px; cursor: pointer; color: #1c8200;"></i>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Modal de Login -->
+<div id="loginModal" class="modal-login">
+    <div class="modal-content-custom">
+        <div class="modal-header-custom">
+            <h3>Iniciar Sesión</h3>
+            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" required placeholder="@">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="loginPassword" required placeholder="********">
+            </div>
+            <button type="submit" class="btn-primary" id="loginBtn">Ingresar</button>
+        </form>
+    </div>
+</div>
+
+<!-- RAFFLE HEADER -->
+<div class="raffle-header" id="raffleHeader">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="raffle-badge"><i class="fa fa-gift"></i> SORTEO LIMITADO</div>
+                <h1 class="raffle-title" id="raffleName">Cargando...</h1>
+                <div class="price-container">
+                    <div class="price-card"><div class="price-label">BOLETO</div><div class="price-value">RD$ <span id="rafflePriceValue">0</span></div></div>
+                    <div class="highlight-badge"><i class="fa fa-trophy"></i> ¡OPORTUNIDAD ÚNICA!</div>
+                </div>
+                
+                <!-- BARRA DE PROGRESO - SOLO PORCENTAJE -->
+                <div class="progress-raffle-container">
+                    <div class="progress-title">
+                        <span><i class="fa fa-chart-line"></i> PROGRESO DEL SORTEO</span>
+                        <span id="progressPercentDisplay">0%</span>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                        <div class="progress-percentage" id="progressPercentage">0%</div>
+                    </div>
+                </div>
+                
+                <div class="luck-message" id="raffleDescription">Cargando descripción...</div>
+            </div>
+            <div class="col-lg-6 text-center"><img id="raffleImage" class="raffle-image-large" src="" alt="Rifa"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TICKETS SECTION -->
+<div class="container tickets-section">
+    <div class="main-grid">
+        <div>
+            <div class="card-modern">
+                <div class="card-header-modern"><h3><i class="fa fa-ticket"></i> Selecciona tus Boletos</h3></div>
+                <div class="card-body-modern">
+                    <div class="info-grid">
+                        <div class="quantity-section">
+                            <div class="quantity-label-modern">CANTIDAD DE BOLETOS</div>
+                            <div class="quantity-control">
+                                <button class="quantity-btn-modern" id="btnMinus">−</button>
+                                <input type="number" id="ticketQty" class="quantity-input-modern" value="1" min="1" max="100" readonly>
+                                <button class="quantity-btn-modern" id="btnPlus">+</button>
+                            </div>
+                            <div id="minPerPersonInfo" style="margin-top: 8px; font-size: 11px; color: #1c8200;">
+                                <i class="fa fa-info-circle"></i> Mínimo requerido: <span id="minPerPersonValue">0</span> boletos
+                            </div>
+                            <div id="maxPerPersonWarning" style="display: none; margin-top: 8px; font-size: 11px; color: #ff9800;">
+                                <i class="fa fa-info-circle"></i> Límite máximo por persona: <span id="maxPerPersonValue">0</span> boletos
+                            </div>
+                        </div>
+                        <div class="total-section">
+                            <div class="total-label">TOTAL A PAGAR</div>
+                            <div class="total-amount" id="liveTotalPrice">RD$ 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="verifier-modern">
+                <div class="verifier-header"><h3><i class="fa fa-search"></i> Verificador de Boletos</h3></div>
+                <div class="verifier-body">
+                    <p class="text-muted" style="margin-bottom: 15px; font-size: 13px;">Ingresa tu número de teléfono o número de boleto para verificar tus compras</p>
+                    <div class="search-grid">
+                        <input type="text" id="searchInput" placeholder="Ej: 8291234567 o 1234">
+                        <button class="btn-search-modern" id="btnSearch"><i class="fa fa-search"></i> Buscar</button>
+                    </div>
+                    <div id="searchResultInfo" class="search-result-info" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="card-modern">
+                <div class="card-header-modern"><h3><i class="fa fa-check-circle"></i> Boletos Asignados</h3></div>
+                <div class="card-body-modern">
+                    <div id="selectedNumbersList">
+                        <div class="assigned-placeholder">
+                            <i class="fa fa-magic"></i>
+                            <p>Busca un boleto o teléfono para ver los boletos asignados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="card-modern">
+                <div class="card-header-modern"><h3><i class="fa fa-user"></i> Datos Personales</h3></div>
+                <div class="card-body-modern">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label class="form-label-modern"><i class="fa fa-user-circle"></i> Nombre Completo *</label>
+                            <input type="text" id="nombre" class="form-control-modern" placeholder="Ej: Juan Pérez García">
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label-modern"><i class="fa fa-phone"></i> Teléfono *</label>
+                            <div class="phone-group-grid">
+                                <select id="countryCode" class="country-code-select">
+                                    <option value="+1">🇩🇴 +1 (RD)</option>
+                                    <option value="+1">🇺🇸 +1 (USA)</option>
+                                    <option value="+34">🇪🇸 +34 (ES)</option>
+                                    <option value="+52">🇲🇽 +52 (MX)</option>
+                                </select>
+                                <input type="tel" id="telefono" class="form-control-modern" placeholder="Ej: 8291234567">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-modern">
+                <div class="card-header-modern"><h3><i class="fa fa-bank"></i> Método de Pago</h3></div>
+                <div class="card-body-modern">
+                    <div class="payment-grid" id="paymentMethods"></div>
+                    <div class="bank-info-grid" id="bankInfo">
+                        <div class="bank-detail-row">
+                            <span class="bank-detail-label">Información:</span>
+                            <span class="bank-detail-value">Selecciona un método de pago</span>
+                        </div>
+                    </div>
+                    <div class="voucher-grid">
+                        <div class="file-upload-modern" onclick="document.getElementById('voucherFile').click()">
+                            <i class="fa fa-cloud-upload upload-icon"></i>
+                            <p><strong>Subir Comprobante de Pago</strong></p>
+                            <small class="text-muted">Foto o captura de pantalla (JPG, PNG) - Obligatorio</small>
+                            <input type="file" id="voucherFile" accept="image/*" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CHECKBOX DE TÉRMINOS Y CONDICIONES -->
+            <div class="terms-container">
+                <div class="terms-checkbox" onclick="toggleTermsCheckbox()">
+                    <input type="checkbox" id="termsCheckbox">
+                    <label for="termsCheckbox">
+                        Acepto los <a href="#" onclick="openTermsModal(event); return false;">Términos y Condiciones</a> del sorteo
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn-confirm-modern" id="btnConfirm"><i class="fa fa-check-circle"></i> Confirmar Compra</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE TÉRMINOS Y CONDICIONES -->
+<div id="termsModal" class="terms-modal">
+    <div class="terms-modal-content">
+        <div class="terms-modal-header">
+            <h3><i class="fa fa-file-text-o"></i> TÉRMINOS Y CONDICIONES</h3>
+            <span class="close-terms-modal" onclick="closeTermsModal()">&times;</span>
+        </div>
+        <div class="terms-modal-body">
+            <p><strong>TERMINOS Y CONDICIONES PARA SORTEOS DE Super Rifas RD</strong></p>
+            <ul>
+                <li>Reconozco que los premios se asignarán a los ganadores mediante selección aleatoria.</li>
+                <li>Autorizo que mis datos de contacto proporcionados sean utilizados como el único medio para notificarme en caso de resultar ganador; en caso de no ser contactado, el Organizador seleccionará a un ganador alterno conforme a estos términos.</li>
+                <li>El premio es intransferible y no puede ser cedido, negociado ni cambiado por otro producto, servicio o compensación en dinero.</li>
+                <li>En caso de resultar ganador, entiendo que puedo ser requerido a proporcionar información adicional y pruebas de identidad para verificar mi elegibilidad y recibir el premio.</li>
+                <li>Reconozco que el premio es otorgado por un tercero, independiente del Organizador, quien no garantiza el valor, condiciones o estado del premio, y lo libero de toda responsabilidad en caso de defectos o problemas que puedan surgir con el uso del mismo.</li>
+                <li>En ocasiones, algunos motores sorteados pueden entregarse con prórroga de aduana (Printer de Aduanas). En tales casos, el ganador asumirá la responsabilidad del proceso de matriculación y los costos asociados. Esto se aplicará únicamente en determinadas circunstancias, garantizando siempre la transparencia en el proceso.</li>
+                <li>Acepto firmar cualquier documento o acta necesarios para formalizar la entrega del premio.</li>
+                <li>Consiento el ingreso de mi información en la base de datos del Organizador, para ser utilizada en futuras promociones, mercadeo o publicidad; entiendo que puedo solicitar ser eliminado de la base de datos en cualquier momento.</li>
+                <li>Si el color del premio ofrecido varía debido a la disponibilidad en el mercado, el Organizador se compromete a mantener el mismo modelo; en caso de agotarse el premio en el país, se coordinará la entrega de un premio similar en características y valor.</li>
+                <li>Acepto asumir todos los costos asociados, como impuestos, trámites legales y otros gastos, para la transferencia del premio a mi nombre si resulto ganador.</li>
+                <li>Podrán ser descalificados los participantes que hayan intentado o realizado la compra de boletos mediante medios no legítimos (como transferencias falsas, uso de tarjetas robadas, entre otros).</li>
+            </ul>
+        </div>
+        <div class="terms-modal-footer">
+            <button class="btn-cancel-terms" onclick="closeTermsModal()">Cancelar</button>
+            <button class="btn-accept-terms" onclick="acceptTerms()">Aceptar y Continuar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div id="successModal" class="modal-success"><div class="modal-content-custom"><i class="fa fa-check-circle fa-3x" style="color: #1c8200;"></i><h3 style="margin: 15px 0;">¡Compra Registrada!</h3><p id="modalMessage"></p><button class="btn-confirm-modern" onclick="closeModal()" style="margin-top: 20px;">Aceptar</button></div></div>
+<div id="ticketModal" class="modal-ticket"><div id="ticketContent"></div></div>
+
+<!-- FOOTER PRINCIPAL -->
+<div id="footer" class="footer-section">
+    <div class="container footer-container">
+        <div class="footer-logo">
+            <img id="footerLogo" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
+            <h3 id="footerSiteName" class="footer-subsection-title">Super_Rifas_RD</h3>
+            <p class="footer-subsection-text">Sorteos que cambian vidas.</p>
+        </div>
+        <div class="footer-subsection">
+            <div class="footer-subsection-2-1">
+                <h3 class="footer-subsection-title">Nosotros</h3>
+                <p id="footerDescription" class="footer-subsection-text">
+                    Tu oportunidad de ganar comienza aquí. Especialistas en sorteos y rifas que sí cumplen. Tu suerte empieza aqui!
+                </p>
+                <p id="footerCeo" style="margin-top:8px; font-size:12px; opacity:0.7;">CEO: @Super_Rifas_RD</p>
+            </div>
+        </div>
+        <div class="footer-subsection">
+            <h3 class="footer-subsection-title">Contacto</h3>
+            <ul class="footer-subsection-list">
+                <li class="webClient"></li>
+                <li id="footerLocation">Samaná, Francisco del Rosario Sánchez, detrás del mercado</li>
+                <li id="footerPhone">+1 8295026484</li>
+            </ul>
+        </div>
+        <div class="footer-subsection">
+            <div class="footer-subsection-2-2">
+                <h3 class="footer-subsection-title">Síguenos</h3>
+                <div class="footer-social-media-icons-section">
+                    <a id="instagramLink" href="#" target="_blank" class="footer-social-media-icon">
+                        <i class="fa fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container footer-credits">
+        <p>
+            <span class="legalLinks">
+                <a href="legal/termsCondResp.html" target="_blank">Condiciones</a> |
+                <a href="legal/termsCondResp.html" target="_blank">Privacidad</a> |
+                <a href="legal/termsCondResp.html" target="_blank">Responsabilidad</a>
+            </span>
+            <br/>
+            © 2025 Todos los derechos reservados.
+        </p>
+    </div>
+</div>
+
+<!-- Botones flotantes - Ocultos hasta que el usuario inicie sesión -->
+<div class="float-buttons">
+    <a id="whatsappFloat" href="#" class="float-btn whatsapp-float" target="_blank" rel="noopener noreferrer">
+        <i class="fa fa-whatsapp"></i>
+    </a>
+    <button id="statsButton" class="float-btn stats-float" onclick="openAdminPanel()" style="display: none;">
+        <i class="fa fa-chart-line"></i>
+    </button>
+    <button id="settingsButton" class="float-btn settings-float" onclick="openConfigModal()" style="display: none;">
+        <i class="fa fa-gear"></i>
+    </button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="admin-panel">
+    <div class="admin-panel-content">
+        <div class="admin-panel-header">
+            <h2><i class="fa fa-chart-line"></i> Panel de Administración - <span id="adminRaffleName"></span></h2>
+            <button class="close-panel" onclick="closeAdminPanel()"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="admin-tab" data-tab="tickets">🎫 Gestión de Boletos</button>
+            <button class="admin-tab" data-tab="vouchers">📎 Comprobantes Pendientes</button>
+            <button class="admin-tab" data-tab="users">👥 Lista de Participantes</button>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="admin-tab-content active">
+            <div class="stats-grid" id="dashboardStats">
+                <div class="stat-card"><i class="fa fa-money"></i><div class="stat-value" id="statTotalCollected">RD$ 0</div><div class="stat-label">Total Recaudado</div></div>
+                <div class="stat-card"><i class="fa fa-ticket"></i><div class="stat-value" id="statTicketsSold">0</div><div class="stat-label">Boletos Vendidos</div></div>
+                <div class="stat-card"><i class="fa fa-chart-line"></i><div class="stat-value" id="statPercentage">0%</div><div class="stat-label">Progreso</div></div>
+                <div class="stat-card"><i class="fa fa-hourglass-half"></i><div class="stat-value" id="statPendingVouchers">0</div><div class="stat-label">Comprobantes Pendientes</div></div>
+            </div>
+            <h4 style="margin: 20px 0 15px;"><i class="fa fa-clock-o"></i> Últimos Boletos Comprados</h4>
+            <div class="tickets-table" id="recentTicketsTable"></div>
+        </div>
+        
+        <!-- Tickets Tab -->
+        <div id="tab-tickets" class="admin-tab-content">
+            <div class="search-bar-admin">
+                <input type="text" id="adminSearchInput" placeholder="Buscar por teléfono o número de boleto...">
+                <button class="btn-admin" onclick="adminSearchTickets()"><i class="fa fa-search"></i> Buscar</button>
+                <button class="btn-admin" onclick="loadAllTickets()"><i class="fa fa-refresh"></i> Ver Todos</button>
+            </div>
+            <div class="tickets-table" id="adminTicketsTable"></div>
+        </div>
+        
+        <!-- Vouchers Tab -->
+        <div id="tab-vouchers" class="admin-tab-content">
+            <div class="tickets-table" id="pendingVouchersTable"></div>
+        </div>
+        
+        <!-- Users Tab -->
+        <div id="tab-users" class="admin-tab-content">
+            <div class="search-bar-admin">
+                <input type="text" id="userSearchInput" placeholder="Buscar por nombre o teléfono...">
+                <button class="btn-admin" onclick="searchUsers()"><i class="fa fa-search"></i> Buscar</button>
+                <button class="btn-admin" onclick="loadAllUsers()"><i class="fa fa-refresh"></i> Ver Todos</button>
+            </div>
+            <div class="tickets-table" id="usersTable"></div>
+        </div>
+    </div>
+</div>
+
+<div id="configModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Configuración</h3>
+            <span class="close" onclick="closeConfigModal()">&times;</span>
+        </div>
+
+        <form id="configForm" class="modal-form">
+            <input type="hidden" id="configId">
+
+            <div class="grid">
+                <div class="form-group">
+                    <label>Logo</label>
+                    <input type="file" id="logoImageFile" accept="image/*">
+                    <img id="logoImagePreview">
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="configSiteName">
+                </div>
+
+                <div class="form-group">
+                    <label>Ubicación</label>
+                    <input type="text" id="configLocation">
+                </div>
+
+                <div class="form-group">
+                    <label>CEO / Lema</label>
+                    <input type="text" id="configCeo">
+                </div>
+
+                <div class="form-group full">
+                    <label>Descripción</label>
+                    <textarea id="configDescription" rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="text" id="configWhatsapp">
+                </div>
+
+                <div class="form-group">
+                    <label>Instagram</label>
+                    <input type="text" id="configInstagram">
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Guardar</button>
+        </form>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<!-- Luego, incluir nuestros módulos en orden -->
+<script src="js/rifa-detalle/config.js" defer></script>
+<script src="js/rifa-detalle/utils.js" defer></script>
+<script src="js/rifa-detalle/payment.js" defer></script>
+<script src="js/rifa-detalle/raffle.js" defer></script>
+<script src="js/rifa-detalle/purchase.js" defer></script>
+<script src="js/rifa-detalle/print.js" defer></script>
+<script src="js/rifa-detalle/admin.js" defer></script>
+<script src="js/rifa-detalle/auth.js" defer></script>
+<script src="js/rifa-detalle/main.js" defer></script>
+
+
+
+
+
+</body>
+</html>
