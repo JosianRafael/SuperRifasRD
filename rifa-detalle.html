@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/rifa-detalle.css"> <!-- Css de la pagina rifa-detalle --> 
+    <link rel="stylesheet" href="css/rifa-detalle.css">
+    
 </head>
 <body>
 
@@ -91,7 +92,6 @@
                     <div class="highlight-badge"><i class="fa fa-trophy"></i> ¡OPORTUNIDAD ÚNICA!</div>
                 </div>
                 
-                <!-- BARRA DE PROGRESO - SOLO PORCENTAJE -->
                 <div class="progress-raffle-container">
                     <div class="progress-title">
                         <span><i class="fa fa-chart-line"></i> PROGRESO DEL SORTEO</span>
@@ -113,32 +113,9 @@
 <!-- TICKETS SECTION -->
 <div class="container tickets-section">
     <div class="main-grid">
+        <!-- PRIMER CONTENEDOR: Selecciona tus Boletos, Verificador, Boletos Asignados -->
         <div>
-            <div class="card-modern">
-                <div class="card-header-modern"><h3><i class="fa fa-ticket"></i> Selecciona tus Boletos</h3></div>
-                <div class="card-body-modern">
-                    <div class="info-grid">
-                        <div class="quantity-section">
-                            <div class="quantity-label-modern">CANTIDAD DE BOLETOS</div>
-                            <div class="quantity-control">
-                                <button class="quantity-btn-modern" id="btnMinus">−</button>
-                                <input type="number" id="ticketQty" class="quantity-input-modern" value="1" min="1" max="100" readonly>
-                                <button class="quantity-btn-modern" id="btnPlus">+</button>
-                            </div>
-                            <div id="minPerPersonInfo" style="margin-top: 8px; font-size: 11px; color: #1c8200;">
-                                <i class="fa fa-info-circle"></i> Mínimo requerido: <span id="minPerPersonValue">0</span> boletos
-                            </div>
-                            <div id="maxPerPersonWarning" style="display: none; margin-top: 8px; font-size: 11px; color: #ff9800;">
-                                <i class="fa fa-info-circle"></i> Límite máximo por persona: <span id="maxPerPersonValue">0</span> boletos
-                            </div>
-                        </div>
-                        <div class="total-section">
-                            <div class="total-label">TOTAL A PAGAR</div>
-                            <div class="total-amount" id="liveTotalPrice">RD$ 0</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
             
             <div class="verifier-modern">
                 <div class="verifier-header"><h3><i class="fa fa-search"></i> Verificador de Boletos</h3></div>
@@ -164,7 +141,34 @@
                 </div>
             </div>
         </div>
+
+         <div class="card-modern">
+                <div class="card-header-modern"><h3><i class="fa fa-ticket"></i> Selecciona tus Boletos</h3></div>
+                <div class="card-body-modern">
+                    <div class="info-grid">
+                        <div class="quantity-section">
+                            <div class="quantity-label-modern">CANTIDAD DE BOLETOS</div>
+                            <div class="quantity-control">
+                                <button class="quantity-btn-modern" id="btnMinus">−</button>
+                                <input type="number" id="ticketQty" class="quantity-input-modern" value="1" min="1" max="100" readonly>
+                                <button class="quantity-btn-modern" id="btnPlus">+</button>
+                            </div>
+                            <div id="minPerPersonInfo" style="margin-top: 8px; font-size: 11px; color: #1c8200;">
+                                <i class="fa fa-info-circle"></i> Mínimo requerido: <span id="minPerPersonValue">0</span> boletos
+                            </div>
+                            <div id="maxPerPersonWarning" style="display: none; margin-top: 8px; font-size: 11px; color: #ff9800;">
+                                <i class="fa fa-info-circle"></i> Límite máximo por persona: <span id="maxPerPersonValue">0</span> boletos
+                            </div>
+                        </div>
+                        <div class="total-section">
+                            <div class="total-label">TOTAL A PAGAR</div>
+                            <div class="total-amount" id="liveTotalPrice">RD$ 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         
+        <!-- SEGUNDO CONTENEDOR: Datos Personales, Método de Pago, Términos, Botón Confirmar -->
         <div>
             <div class="card-modern">
                 <div class="card-header-modern"><h3><i class="fa fa-user"></i> Datos Personales</h3></div>
@@ -211,7 +215,6 @@
                 </div>
             </div>
             
-            <!-- CHECKBOX DE TÉRMINOS Y CONDICIONES -->
             <div class="terms-container">
                 <div class="terms-checkbox" onclick="toggleTermsCheckbox()">
                     <input type="checkbox" id="termsCheckbox">
@@ -309,7 +312,7 @@
     </div>
 </div>
 
-<!-- Botones flotantes - Ocultos hasta que el usuario inicie sesión -->
+<!-- Botones flotantes -->
 <div class="float-buttons">
     <a id="whatsappFloat" href="#" class="float-btn whatsapp-float" target="_blank" rel="noopener noreferrer">
         <i class="fa fa-whatsapp"></i>
@@ -336,7 +339,6 @@
             <button class="admin-tab" data-tab="users">👥 Lista de Participantes</button>
         </div>
         
-        <!-- Dashboard Tab -->
         <div id="tab-dashboard" class="admin-tab-content active">
             <div class="stats-grid" id="dashboardStats">
                 <div class="stat-card"><i class="fa fa-money"></i><div class="stat-value" id="statTotalCollected">RD$ 0</div><div class="stat-label">Total Recaudado</div></div>
@@ -348,7 +350,6 @@
             <div class="tickets-table" id="recentTicketsTable"></div>
         </div>
         
-        <!-- Tickets Tab -->
         <div id="tab-tickets" class="admin-tab-content">
             <div class="search-bar-admin">
                 <input type="text" id="adminSearchInput" placeholder="Buscar por teléfono o número de boleto...">
@@ -358,12 +359,10 @@
             <div class="tickets-table" id="adminTicketsTable"></div>
         </div>
         
-        <!-- Vouchers Tab -->
         <div id="tab-vouchers" class="admin-tab-content">
             <div class="tickets-table" id="pendingVouchersTable"></div>
         </div>
         
-        <!-- Users Tab -->
         <div id="tab-users" class="admin-tab-content">
             <div class="search-bar-admin">
                 <input type="text" id="userSearchInput" placeholder="Buscar por nombre o teléfono...">
@@ -381,53 +380,43 @@
             <h3>Configuración</h3>
             <span class="close" onclick="closeConfigModal()">&times;</span>
         </div>
-
         <form id="configForm" class="modal-form">
             <input type="hidden" id="configId">
-
             <div class="grid">
                 <div class="form-group">
                     <label>Logo</label>
                     <input type="file" id="logoImageFile" accept="image/*">
                     <img id="logoImagePreview">
                 </div>
-
                 <div class="form-group">
                     <label>Nombre</label>
                     <input type="text" id="configSiteName">
                 </div>
-
                 <div class="form-group">
                     <label>Ubicación</label>
                     <input type="text" id="configLocation">
                 </div>
-
                 <div class="form-group">
                     <label>CEO / Lema</label>
                     <input type="text" id="configCeo">
                 </div>
-
                 <div class="form-group full">
                     <label>Descripción</label>
                     <textarea id="configDescription" rows="2"></textarea>
                 </div>
-
                 <div class="form-group">
                     <label>WhatsApp</label>
                     <input type="text" id="configWhatsapp">
                 </div>
-
                 <div class="form-group">
                     <label>Instagram</label>
                     <input type="text" id="configInstagram">
                 </div>
             </div>
-
             <button type="submit" class="btn">Guardar</button>
         </form>
     </div>
 </div>
-
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -435,7 +424,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-<!-- Luego, incluir nuestros módulos en orden -->
 <script src="js/rifa-detalle/config.js" defer></script>
 <script src="js/rifa-detalle/utils.js" defer></script>
 <script src="js/rifa-detalle/payment.js" defer></script>
@@ -445,10 +433,6 @@
 <script src="js/rifa-detalle/admin.js" defer></script>
 <script src="js/rifa-detalle/auth.js" defer></script>
 <script src="js/rifa-detalle/main.js" defer></script>
-
-
-
-
 
 </body>
 </html>

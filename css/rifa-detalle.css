@@ -1,4 +1,80 @@
 
+        /* ============================================
+           REORDENAMIENTO RESPONSIVE CORREGIDO
+           Orden en móvil:
+           1. Selecciona tus Boletos
+           2. Datos Personales
+           3. Método de Pago
+           4. Términos y Condiciones
+           5. Botón Confirmar Compra
+           6. Verificador de Boletos
+           7. Boletos Asignados
+           ============================================ */
+        @media (max-width: 991.98px) {
+            /* Contenedor principal en columna */
+            .main-grid {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* PRIMER CONTENEDOR (Selecciona Boletos, Verificador, Boletos Asignados) */
+            .main-grid > div:first-child {
+                display: flex;
+                flex-direction: column;
+                order: 2; /* Este bloque va después del segundo contenedor */
+            }
+            
+            /* SEGUNDO CONTENEDOR (Datos, Pago, Términos, Botón) */
+            .main-grid > div:last-child {
+                order: 1; /* Este bloque va primero pero se reordenará internamente */
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* Reordenar los elementos DENTRO del primer contenedor */
+            /* 1. Selecciona tus Boletos - se mantiene primero dentro de su contenedor */
+            .main-grid > div:first-child .card-modern:first-child {
+                order: 1;
+            }
+            
+            /* 2. Verificador de Boletos - va después del botón confirmar (penúltimo en la página) */
+            .main-grid > div:first-child .verifier-modern {
+                order: 2;
+                margin-top: 20px;
+            }
+            
+            /* 3. Boletos Asignados - va al final (último) */
+            .main-grid > div:first-child .card-modern:last-child {
+                order: 3;
+                margin-top: 20px;
+            }
+            
+            /* Reordenar los elementos DENTRO del segundo contenedor para que queden en el orden correcto */
+            /* El segundo contenedor ya tiene el orden natural: Datos, Pago, Términos, Botón */
+            /* Ese orden es correcto, solo asegurar que no haya interferencia */
+            
+            /* Ajuste para que el primer contenedor tenga margen superior */
+            .main-grid > div:first-child {
+                margin-top: 30px;
+            }
+        }
+        
+        /* Para pantallas muy pequeñas */
+        @media (max-width: 576px) {
+            .main-grid > div:first-child {
+                margin-top: 20px;
+            }
+            
+            .main-grid > div:first-child .verifier-modern {
+                margin-top: 15px;
+            }
+            
+            .main-grid > div:first-child .card-modern:last-child {
+                margin-top: 15px;
+            }
+        }
+        
+        /* Resto de estilos CSS existentes */
         * {
             margin: 0;
             padding: 0;
@@ -268,7 +344,7 @@
             font-size: 14px;
         }
         
-        /* BARRA DE PROGRESO - SOLO PORCENTAJE */
+        /* BARRA DE PROGRESO */
         .progress-raffle-container {
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
@@ -558,69 +634,6 @@
         .search-result-info p {
             margin: 0;
             font-size: 13px;
-        }
-        
-        .tickets-badges-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: flex-start;
-        }
-        
-        .ticket-item-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .ticket-badge-modern {
-            background: linear-gradient(135deg, #1c8200, #0f5a00);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 700;
-            text-align: center;
-            box-shadow: 0 3px 8px rgba(28,130,0,0.3);
-            transition: transform 0.2s;
-            min-width: 90px;
-        }
-        
-        .ticket-badge-modern:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn-print-ticket, .btn-download-ticket {
-            border: none;
-            border-radius: 30px;
-            padding: 5px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .btn-print-ticket {
-            background: #ff9800;
-        }
-        
-        .btn-print-ticket:hover {
-            background: #f57c00;
-            transform: scale(1.02);
-        }
-        
-        .btn-download-ticket {
-            background: #1c8200;
-        }
-        
-        .btn-download-ticket:hover {
-            background: #0f5a00;
-            transform: scale(1.02);
         }
         
         .form-grid {
@@ -1026,7 +1039,7 @@
             }
         }
         
-        /* MODALS - Z-INDEX más alto para que estén encima del panel */
+        /* MODALS */
         .modal-success, .modal-ticket {
             position: fixed;
             top: 0;
@@ -1235,26 +1248,6 @@
             color: white;
         }
         
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.8s ease-in-out infinite;
-            margin-right: 6px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .btn-loading {
-            opacity: 0.7;
-            cursor: wait;
-        }
-        
         .assigned-placeholder {
             text-align: center;
             padding: 35px 20px;
@@ -1275,6 +1268,69 @@
             color: #6c757d;
             margin: 0;
             font-size: 13px;
+        }
+        
+        .tickets-badges-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+        
+        .ticket-item-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .ticket-badge-modern {
+            background: linear-gradient(135deg, #1c8200, #0f5a00);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(28,130,0,0.3);
+            transition: transform 0.2s;
+            min-width: 90px;
+        }
+        
+        .ticket-badge-modern:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-print-ticket, .btn-download-ticket {
+            border: none;
+            border-radius: 30px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-print-ticket {
+            background: #ff9800;
+        }
+        
+        .btn-print-ticket:hover {
+            background: #f57c00;
+            transform: scale(1.02);
+        }
+        
+        .btn-download-ticket {
+            background: #1c8200;
+        }
+        
+        .btn-download-ticket:hover {
+            background: #0f5a00;
+            transform: scale(1.02);
         }
         
         /* ADMIN PANEL STYLES */
@@ -1441,23 +1497,6 @@
             transform: translateY(-2px);
         }
         
-        .btn-admin-danger {
-            background: #dc3545;
-        }
-        
-        .btn-admin-danger:hover {
-            background: #c82333;
-        }
-        
-        .btn-admin-warning {
-            background: #ffc107;
-            color: #000;
-        }
-        
-        .btn-admin-warning:hover {
-            background: #e0a800;
-        }
-        
         .tickets-table {
             width: 100%;
             overflow-x: auto;
@@ -1502,67 +1541,12 @@
             color: #1c8200;
         }
         
-        .status-cancelled {
-            background: #ffebee;
-            color: #dc3545;
-        }
-        
         .voucher-preview {
             width: 50px;
             height: 50px;
             object-fit: cover;
             border-radius: 8px;
             cursor: pointer;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .action-btn.approve {
-            background: #1c8200;
-            color: white;
-        }
-        
-        .action-btn.reject {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .action-btn.reassign {
-            background: #ff9800;
-            color: white;
-        }
-        
-        .action-btn.delete {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .action-btn:hover {
-            transform: scale(1.02);
-            opacity: 0.9;
-        }
-        
-        .note-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 12px;
-            margin-top: 5px;
         }
         
         /* Modal de login */
@@ -1651,7 +1635,81 @@
             color: #000;
         }
         
-        /* Responsive */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        
+        .modal-box {
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .close {
+            font-size: 22px;
+            cursor: pointer;
+        }
+        
+        .modal-form .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+        }
+        
+        .form-group.full {
+            grid-column: span 2;
+        }
+        
+        input, textarea {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #logoImagePreview {
+            max-width: 70px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        /* Responsive general */
         @media screen and (max-width: 992px) {
             .main-grid {
                 grid-template-columns: 1fr;
@@ -1761,80 +1819,4 @@
                 min-width: 80px;
             }
         }
-
-
-       .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    
-    display: none; /* 🔥 IMPORTANTE */
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-}
-
-
-.modal-box {
-    background: #fff;
-    width: 90%;
-    max-width: 500px; /* 🔥 más pequeño */
-    max-height: 85vh; /* 🔥 evita que se salga */
-    overflow-y: auto; /* 🔥 scroll interno */
-    border-radius: 12px;
-    padding: 20px;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.close {
-    font-size: 22px;
-    cursor: pointer;
-}
-
-.modal-form .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 🔥 dos columnas */
-    gap: 10px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    font-size: 14px;
-}
-
-.form-group.full {
-    grid-column: span 2; /* ocupa toda la fila */
-}
-
-input, textarea {
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-
-#logoImagePreview {
-    max-width: 70px;
-    margin-top: 5px;
-    display: none;
-}
-
-.btn {
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
+   
