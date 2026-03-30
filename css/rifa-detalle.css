@@ -1459,6 +1459,105 @@
             font-weight: 800;
             color: #2d3436;
         }
+
+                /* Botones de acción del panel de administración */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn.approve {
+            background: #1c8200;
+            color: white;
+        }
+        
+        .action-btn.approve:hover {
+            background: #0f5a00;
+            transform: translateY(-1px);
+        }
+        
+        .action-btn.reject {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .action-btn.reject:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+        
+        .action-btn.reassign {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .action-btn.reassign:hover {
+            background: #f57c00;
+            transform: translateY(-1px);
+        }
+        
+        .action-btn.delete {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .action-btn.delete:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        /* Botones generales del admin */
+        .btn-admin {
+            background: #1c8200;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-admin:hover {
+            background: #0f5a00;
+            transform: translateY(-2px);
+        }
+        
+        .btn-admin-danger {
+            background: #dc3545;
+        }
+        
+        .btn-admin-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-admin-warning {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .btn-admin-warning:hover {
+            background: #e0a800;
+        }
+        
+        .btn-admin-success {
+            background: #28a745;
+        }
+        
+        .btn-admin-success:hover {
+            background: #218838;
+        }
         
         .stat-label {
             font-size: 13px;
