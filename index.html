@@ -1346,28 +1346,27 @@ Samaná, Francisco del Rosario Sánchez, detrás del mercado</span>
 						<div class="raffle-card-badge ${badgeClass}">${badgeText}</div>
 					</div>
 					<div class="raffle-card-content">
-						<h3 class="raffle-card-title">${escapeHtml(raffle.name)}</h3>
-						${priceFormatted ? `<div class="raffle-card-price"><i class="fa fa-ticket"></i> ${priceFormatted}</div>` : ''}
-						<span class="raffle-card-date">🗓️ ${raffle.date || 'CON LA VENTA DEL 100%'}</span>
-						${!isFinished ? `
-							<div class="progress-container">
-								<div class="progress-label">
-									<span>Progreso</span>
-									<span>${percent}%</span>
-								</div>
-								<div class="progress-bar-bg">
-									<div class="progress-bar-fill" style="width: ${percent}%"></div>
-								</div>
-							</div>
-						` : ''}
-						${raffle.description ? `<div class="raffle-description-preview" style="font-size: 12px; color: #666; margin-top: 8px; max-height: 60px; overflow: hidden; text-overflow: ellipsis;">${descriptionFormatted.substring(0, 100)}${descriptionFormatted.length > 100 ? '...' : ''}</div>` : ''}
-						<div class="raffle-card-footer">
-							<a class="raffle-card-btn ${btnDisabled ? 'disabled-btn' : ''}" href="${btnLink}" ${btnDisabled ? 'onclick="return false;"' : ''} onclick="goToRaffleDetail('${raffle.id}')">${btnText}</a>
-						</div>
-						${adminActions}
-					</div>
-				</div>
-			`;
+    <h3 class="raffle-card-title">${escapeHtml(raffle.name)}</h3>
+    ${priceFormatted ? `<div class="raffle-card-price"><i class="fa fa-ticket"></i> ${priceFormatted}</div>` : ''}
+    <span class="raffle-card-date">🗓️ ${raffle.date || 'CON LA VENTA DEL 100%'}</span>
+    ${!isFinished ? `
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Progreso</span>
+                <span>${percent}%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: ${percent}%"></div>
+            </div>
+        </div>
+    ` : ''}
+    <div class="raffle-card-footer">
+        <a class="raffle-card-btn ${btnDisabled ? 'disabled-btn' : ''}" href="${btnLink}" ${btnDisabled ? 'onclick="return false;"' : ''} onclick="goToRaffleDetail('${raffle.id}')">${btnText}</a>
+    </div>
+    ${adminActions}
+</div>
+</div>
+`;
 		}).join('');
 	}
 	
