@@ -58,16 +58,58 @@ function selectPaymentMethod(methodId) {
             </div>
         `;
     } else {
-        bankInfo.innerHTML = `
-            <div class="bank-detail-row">
-                <span class="bank-detail-label">${currentPaymentMethod.account_type || 'Cuenta'}:</span>
-                <span class="bank-detail-value">${escapeHtml(currentPaymentMethod.account_number)}</span>
-            </div>
-            <div class="bank-detail-row">
-                <span class="bank-detail-label">Titular:</span>
-                <span class="bank-detail-value">${escapeHtml(currentPaymentMethod.holder_name)}</span>
-            </div>
-            <button class="copy-btn-modern" onclick="copyToClipboard('${escapeHtml(currentPaymentMethod.account_number)}')"><i class="fa fa-copy"></i> Copiar cuenta</button>
-        `;
+        // Detectar si el account_number es un enlace (URL)
+        const accountNumber = currentPaymentMethod.account_number;
+        const isLink = accountNumber && (accountNumber.startsWith('http://') || accountNumber.startsWith('https://') || accountNumber.includes('paypal.me') || accountNumber.includes('paypal.com'));
+        
+        let accountNumberHtml = '';
+        if (isLink) {
+            // Si es un enlace, mostrar como link clickeable
+            accountNumberHtml = `
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">${currentPaymentMethod.account_type || 'Enlace de pago'}:</span>
+                    <span class="bank-detail-value">
+                        <a href="${escapeHtml(accountNumber)}" target="_blank" rel="noopener noreferrer" class="payment-link">
+                            <i class="fa fa-external-link"></i> ${escapeHtml(accountNumber)}
+                        </a>
+                    </span>
+                </div>
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">Titular:</span>
+                    <span class="bank-detail-value">${escapeHtml(currentPaymentMethod.holder_name)}</span>
+                </div>
+                <button class="copy-btn-modern" onclick="openPaymentLink('${escapeHtml(accountNumber)}')">
+                    <i class="fa fa-external-link"></i> Abrir enlace de pago
+                </button>
+            `;
+        } else {
+            // Si es número de cuenta normal, mostrar como texto con botón copiar
+            accountNumberHtml = `
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">${currentPaymentMethod.account_type || 'Cuenta'}:</span>
+                    <span class="bank-detail-value">${escapeHtml(accountNumber)}</span>
+                </div>
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">Titular:</span>
+                    <span class="bank-detail-value">${escapeHtml(currentPaymentMethod.holder_name)}</span>
+                </div>
+                <button class="copy-btn-modern" onclick="copyToClipboard('${escapeHtml(accountNumber)}')">
+                    <i class="fa fa-copy"></i> Copiar cuenta
+                </button>
+            `;
+        }
+        
+        bankInfo.innerHTML = accountNumberHtml;
+    }
+}
+
+// Función para abrir enlace de pago
+function openPaymentLink(url) {
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+        // Si no es una URL válida, intentar agregar https://
+        const fullUrl = url.startsWith('http') ? url : 'https://' + url;
+        window.open(fullUrl, '_blank', 'noopener,noreferrer');
     }
 }

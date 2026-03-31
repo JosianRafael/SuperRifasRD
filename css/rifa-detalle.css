@@ -2107,4 +2107,52 @@
 .btn-print-all i {
     font-size: 16px;
 }
+
+
+/* Estilos para enlaces de pago */
+.payment-link {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    word-break: break-all;
+}
+
+.payment-link:hover {
+    color: #004499;
+    text-decoration: underline;
+}
+
+.payment-link i {
+    font-size: 12px;
+}
+
+.copy-btn-modern {
+    background: linear-gradient(135deg, #1c8200, #156b00);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.copy-btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #156b00, #0f5500);
+}
+
+.copy-btn-modern i {
+    font-size: 14px;
+}
    
