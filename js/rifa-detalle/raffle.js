@@ -34,7 +34,12 @@ async function loadRaffle() {
         document.getElementById('adminRaffleName').textContent = currentRaffle.name;
         document.getElementById('rafflePriceValue').textContent = currentRaffle.price || 0;
         document.getElementById('raffleImage').src = currentRaffle.image_url || 'https://via.placeholder.com/400x400?text=Sin+Imagen';
-        document.getElementById('raffleDescription').innerHTML = `<i class="fa fa-star"></i> ${escapeHtml(currentRaffle.description || '¡Participa y gana increíbles premios!')}`;
+        
+        // MODIFICACIÓN: Mostrar la descripción con formato que respeta los saltos de línea
+        const descriptionText = currentRaffle.description || '¡Participa y gana increíbles premios!';
+        // Convertir saltos de línea a <br> para mostrar en HTML
+        const formattedDescription = descriptionText.replace(/\n/g, '<br>').replace(/\r/g, '');
+        document.getElementById('raffleDescription').innerHTML = `<i class="fa fa-star"></i> ${formattedDescription}`;
         
         const percent = currentRaffle.total_tickets > 0 ? (currentRaffle.sold_tickets * 100 / currentRaffle.total_tickets).toFixed(1) : 0;
         document.getElementById('progressFill').style.width = percent + '%';
