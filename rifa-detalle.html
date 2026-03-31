@@ -216,13 +216,13 @@
             </div>
             
             <div class="terms-container">
-                <div class="terms-checkbox" onclick="toggleTermsCheckbox()">
-                    <input type="checkbox" id="termsCheckbox">
-                    <label for="termsCheckbox">
-                        Acepto los <a href="#" onclick="openTermsModal(event); return false;">Términos y Condiciones</a> del sorteo
-                    </label>
-                </div>
-            </div>
+    <div class="terms-checkbox">
+        <input type="checkbox" id="termsCheckbox" onclick="event.stopPropagation();">
+        <label for="termsCheckbox" onclick="event.stopPropagation();">
+            Acepto los <a href="#" onclick="openTermsModal(event); return false;">Términos y Condiciones</a> del sorteo
+        </label>
+    </div>
+</div>
             
             <button class="btn-confirm-modern" id="btnConfirm"><i class="fa fa-check-circle"></i> Confirmar Compra</button>
         </div>

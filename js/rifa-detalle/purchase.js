@@ -128,13 +128,14 @@ function clearVoucher() {
         newFileInput.addEventListener('change', handleVoucherFileSelect);
     }
 }
-
 function toggleTermsCheckbox() {
     const checkbox = document.getElementById('termsCheckbox');
+    // Alternar el estado del checkbox directamente
     checkbox.checked = !checkbox.checked;
-    if (checkbox.checked) {
-        termsAccepted = true;
-    } else {
+    termsAccepted = checkbox.checked;
+    
+    // Si se desmarca el checkbox, también actualizar la variable termsAccepted
+    if (!checkbox.checked) {
         termsAccepted = false;
     }
 }
@@ -167,8 +168,9 @@ function acceptTerms() {
 }
 
 async function confirmPurchase() {
-    // Verificar que los términos hayan sido aceptados
-    if (!termsAccepted && !document.getElementById('termsCheckbox').checked) {
+    // Verificar que los términos hayan sido aceptados (checkbox marcado)
+    const termsCheckbox = document.getElementById('termsCheckbox');
+    if (!termsCheckbox.checked) {
         Swal.fire('Aceptación requerida', 'Debes aceptar los Términos y Condiciones para continuar con la compra', 'error');
         return;
     }
@@ -277,6 +279,8 @@ async function confirmPurchase() {
         document.getElementById('nombre').value = '';
         document.getElementById('telefono').value = '';
         document.getElementById('voucherFile').value = '';
+        // No resetear el checkbox de términos para que el usuario pueda seguir comprando sin re-aceptar
+        // document.getElementById('termsCheckbox').checked = false;
         selectedVoucherFile = null;
         
         const uploadArea = document.querySelector('.file-upload-modern');
