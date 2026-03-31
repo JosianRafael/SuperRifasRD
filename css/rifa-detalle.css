@@ -1918,4 +1918,193 @@
                 min-width: 80px;
             }
         }
+
+
+        /* Estilos para las cards de boletos */
+.tickets-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.ticket-card {
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    overflow: hidden;
+    color: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ticket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.ticket-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.5);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.ticket-card-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-pending {
+    background: #ff9800;
+    color: #fff;
+}
+
+.status-confirmed {
+    background: #1c8200;
+    color: #fff;
+}
+
+.status-cancelled {
+    background: #dc3545;
+    color: #fff;
+}
+
+.ticket-card-date {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.ticket-card-number {
+    text-align: center;
+    padding: 25px 20px;
+    background: rgba(0,0,0,0.3);
+}
+
+.ticket-number-label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    opacity: 0.7;
+}
+
+.ticket-number-value {
+    font-size: 48px;
+    font-weight: bold;
+    font-family: monospace;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #fff, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ticket-card-user {
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.4);
+}
+
+.user-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.user-info-row i {
+    width: 20px;
+    opacity: 0.7;
+}
+
+.ticket-card-footer {
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.6);
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.raffle-name {
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 12px;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ticket-card-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-print-ticket-card,
+.btn-download-ticket-card {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-print-ticket-card {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-print-ticket-card:hover {
+    background: #5a6268;
+}
+
+.btn-download-ticket-card {
+    background: #1c8200;
+    color: white;
+}
+
+.btn-download-ticket-card:hover {
+    background: #156b00;
+}
+
+/* Estilo para el botón de imprimir todos */
+.print-all-container {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.btn-print-all {
+    background: linear-gradient(135deg, #1c8200, #156b00);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-print-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #156b00, #0f5500);
+}
+
+.btn-print-all i {
+    font-size: 16px;
+}
    
