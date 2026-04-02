@@ -60,8 +60,201 @@ function renderRecentTickets(tickets) {
 function renderPendingVouchers(vouchers) {
     const container = document.getElementById('pendingVouchersTable');
     if (!container) return;
-    if (vouchers.length === 0) { container.innerHTML = '<p>No hay comprobantes pendientes</p>'; return; }
-    container.innerHTML = `<table class="admin-table"><thead><tr><th>Comprobante</th><th>Cliente</th><th>Teléfono</th><th>Boletos</th><th>Total</th><th>Acciones</th></tr></thead><tbody>${vouchers.map(t => `<tr><td><img src="${t.voucher_url}" class="voucher-preview" onclick="window.open('${t.voucher_url}', '_blank')" style="cursor:pointer;"></td><td>${escapeHtml(t.user_name)}</td><td>${escapeHtml(t.user_phone)}</td><td>${t.ticket_number.toString().padStart(4, '0')}</td><td>RD$ ${(t.price || 0).toLocaleString('es-DO')}</td><td class="action-buttons"><button class="action-btn approve" onclick="approveTicket('${t.id}')">Aprobar</button><button class="action-btn reject" onclick="rejectTicket('${t.id}')">Rechazar</button><button class="action-btn delete" onclick="deleteTicket('${t.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table>`;
+    
+    // Agrupar por compra (mismo voucher_url y misma fecha de compra)
+    const groups = new Map();
+    
+    vouchers.forEach(ticket => {
+        // Crear una clave única para el grupo: voucher_url + fecha (solo día, mes, año, hora)
+        const purchaseDate = new Date(ticket.purchase_date);
+        const groupKey = `${ticket.voucher_url}_${purchaseDate.toISOString().split('T')[0]}_${purchaseDate.getHours()}_${purchaseDate.getMinutes()}`;
+        
+        if (!groups.has(groupKey)) {
+            groups.set(groupKey, {
+                id: groupKey,
+                voucher_url: ticket.voucher_url,
+                user_name: ticket.user_name,
+                user_phone: ticket.user_phone,
+                purchase_date: ticket.purchase_date,
+                tickets: [],
+                total_amount: 0,
+                ticket_ids: []
+            });
+        }
+        
+        const group = groups.get(groupKey);
+        group.tickets.push(ticket.ticket_number);
+        group.total_amount += (ticket.price || 0);
+        group.ticket_ids.push(ticket.id);
+    });
+    
+    const groupedVouchers = Array.from(groups.values());
+    
+    if (groupedVouchers.length === 0) { 
+        container.innerHTML = '<p>No hay comprobantes pendientes</p>'; 
+        return; 
+    }
+    
+    container.innerHTML = `<table class="admin-table"><thead>
+        <tr>
+            <th>Comprobante</th>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Boletos</th>
+            <th>Cantidad</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+        </tr>
+    </thead><tbody>
+        ${groupedVouchers.map(group => `
+            <tr>
+                <td><img src="${group.voucher_url}" class="voucher-preview" onclick="window.open('${group.voucher_url}', '_blank')" style="cursor:pointer;"></td>
+                <td>${escapeHtml(group.user_name)}</td>
+                <td>${escapeHtml(group.user_phone)}</td>
+                <td><span class="ticket-badge-group">${group.tickets.map(t => t.toString().padStart(4, '0')).join(', ')}</span></td>
+                <td><span class="ticket-count-badge">${group.tickets.length} boletos</span></td>
+                <td>RD$ ${group.total_amount.toLocaleString('es-DO')}</td>
+                <td>${new Date(group.purchase_date).toLocaleString()}</td>
+                <td class="action-buttons">
+                    <button class="action-btn approve" onclick="approveGroup('${group.id}', ${JSON.stringify(group.ticket_ids)})">Aprobar Todo</button>
+                    <button class="action-btn reject" onclick="rejectGroup('${group.id}', ${JSON.stringify(group.ticket_ids)})">Rechazar Todo</button>
+                    <button class="action-btn delete" onclick="deleteGroup('${group.id}', ${JSON.stringify(group.ticket_ids)})">Eliminar Todo</button>
+                </td>
+            </tr>
+        `).join('')}
+    </tbody></table>`;
+}
+
+async function approveGroup(groupId, ticketIds) {
+    closeAdminPanelForAction();
+    const result = await Swal.fire({
+        title: '¿Aprobar compra completa?',
+        text: `Esta acción confirmará la compra de ${ticketIds.length} boleto(s) y los asignará automáticamente`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, aprobar todos',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+        try {
+            // Actualizar todos los tickets del grupo a confirmed
+            const { error } = await supabaseClient
+                .from('tickets')
+                .update({ status: 'confirmed', updated_at: new Date() })
+                .in('id', ticketIds);
+            
+            if (error) throw error;
+            
+            // Actualizar contador de boletos vendidos en la rifa
+            const { data: confirmedTickets, error: countError } = await supabaseClient
+                .from('tickets')
+                .select('id')
+                .eq('raffle_id', currentRaffle.id)
+                .eq('status', 'confirmed');
+            
+            if (!countError) {
+                await supabaseClient
+                    .from('raffles')
+                    .update({ sold_tickets: confirmedTickets.length })
+                    .eq('id', currentRaffle.id);
+                currentRaffle.sold_tickets = confirmedTickets.length;
+                const percent = (confirmedTickets.length * 100 / currentRaffle.total_tickets).toFixed(1);
+                document.getElementById('progressFill').style.width = percent + '%';
+                document.getElementById('progressPercentDisplay').textContent = percent + '%';
+                document.getElementById('progressPercentage').textContent = percent + '%';
+            }
+            
+            Swal.fire('Aprobado', `Se han aprobado ${ticketIds.length} boleto(s) correctamente`, 'success');
+            await loadAdminData();
+            await loadRaffle();
+        } catch (error) {
+            console.error('Error approving group:', error);
+            Swal.fire('Error', 'No se pudo aprobar la compra', 'error');
+        }
+    }
+}
+
+async function rejectGroup(groupId, ticketIds) {
+    closeAdminPanelForAction();
+    const result = await Swal.fire({
+        title: '¿Rechazar compra completa?',
+        text: `Esta acción marcará ${ticketIds.length} boleto(s) como rechazados`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, rechazar todos',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+        try {
+            // Actualizar todos los tickets del grupo a cancelled
+            const { error } = await supabaseClient
+                .from('tickets')
+                .update({ status: 'cancelled', updated_at: new Date() })
+                .in('id', ticketIds);
+            
+            if (error) throw error;
+            
+            Swal.fire('Rechazado', `Se han rechazado ${ticketIds.length} boleto(s)`, 'success');
+            await loadAdminData();
+            await loadRaffle();
+        } catch (error) {
+            console.error('Error rejecting group:', error);
+            Swal.fire('Error', 'No se pudo rechazar la compra', 'error');
+        }
+    }
+}
+
+async function deleteGroup(groupId, ticketIds) {
+    closeAdminPanelForAction();
+    const result = await Swal.fire({
+        title: '¿Eliminar compra completa?',
+        text: `Esta acción eliminará permanentemente ${ticketIds.length} boleto(s). No se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar todos',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+        try {
+            // Eliminar todos los tickets del grupo
+            const { error } = await supabaseClient
+                .from('tickets')
+                .delete()
+                .in('id', ticketIds);
+            
+            if (error) throw error;
+            
+            // Actualizar contador de boletos vendidos
+            const { data: confirmedTickets, error: countError } = await supabaseClient
+                .from('tickets')
+                .select('id')
+                .eq('raffle_id', currentRaffle.id)
+                .eq('status', 'confirmed');
+            
+            if (!countError) {
+                await supabaseClient
+                    .from('raffles')
+                    .update({ sold_tickets: confirmedTickets.length })
+                    .eq('id', currentRaffle.id);
+                currentRaffle.sold_tickets = confirmedTickets.length;
+                const percent = (confirmedTickets.length * 100 / currentRaffle.total_tickets).toFixed(1);
+                document.getElementById('progressFill').style.width = percent + '%';
+                document.getElementById('progressPercentDisplay').textContent = percent + '%';
+                document.getElementById('progressPercentage').textContent = percent + '%';
+            }
+            
+            Swal.fire('Eliminado', `Se han eliminado ${ticketIds.length} boleto(s)`, 'success');
+            await loadAdminData();
+            await loadRaffle();
+        } catch (error) {
+            console.error('Error deleting group:', error);
+            Swal.fire('Error', 'No se pudo eliminar la compra', 'error');
+        }
+    }
 }
 
 function renderAdminTickets(tickets) {
