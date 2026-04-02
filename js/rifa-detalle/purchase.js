@@ -26,38 +26,40 @@ function updateQuantity(delta) {
         Swal.fire('Límite alcanzado', `Máximo ${maxAllowed} boletos por persona en esta rifa`, 'warning');
     }
 }
-
 async function getRandomAvailableTickets(quantity) {
     if (!currentRaffle) return null;
     
-    const { data: soldTickets, error } = await supabaseClient
+    // Obtener TODOS los boletos que NO están disponibles (confirmed, pending, cancelled)
+    const { data: occupiedTickets, error } = await supabaseClient
         .from('tickets')
         .select('ticket_number')
         .eq('raffle_id', currentRaffle.id)
-        .eq('status', 'confirmed');
+        .in('status', ['confirmed', 'pending']);  // ← Incluir pending también
     
     if (error) {
-        console.error('Error getting sold tickets:', error);
+        console.error('Error getting occupied tickets:', error);
         return null;
     }
     
-    const soldNumbers = new Set(soldTickets.map(t => t.ticket_number));
+    const occupiedNumbers = new Set(occupiedTickets.map(t => t.ticket_number));
     const available = [];
     
     for (let i = 1; i <= currentRaffle.total_tickets; i++) {
-        if (!soldNumbers.has(i)) {
-            available.push(i.toString().padStart(4, '0'));
+        if (!occupiedNumbers.has(i)) {
+            available.push(i);
         }
     }
     
     if (available.length < quantity) return null;
     
+    // Algoritmo Fisher-Yates para mezclar
     for (let i = available.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [available[i], available[j]] = [available[j], available[i]];
     }
     
-    return available.slice(0, quantity);
+    // Devolver como strings con padding de 4 dígitos
+    return available.slice(0, quantity).map(num => num.toString().padStart(4, '0'));
 }
 
 async function uploadVoucher(ticketNumbers, userId) {

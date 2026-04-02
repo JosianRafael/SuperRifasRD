@@ -342,15 +342,22 @@ function loadAllTickets() { renderAdminTickets(allTickets); document.getElementB
 function loadAllUsers() { renderUsersTable(allUsers); document.getElementById('userSearchInput').value = ''; }
 
 async function getAvailableNumbers() {
-    const { data: soldTickets, error } = await supabaseClient
+    // Obtener TODOS los boletos ocupados (confirmed + pending)
+    const { data: occupiedTickets, error } = await supabaseClient
         .from('tickets')
         .select('ticket_number')
         .eq('raffle_id', currentRaffle.id)
-        .eq('status', 'confirmed');
+        .in('status', ['confirmed', 'pending']);  // ← Incluir pending
+    
     if (error) return [];
-    const soldNumbers = new Set(soldTickets.map(t => t.ticket_number));
+    
+    const occupiedNumbers = new Set(occupiedTickets.map(t => t.ticket_number));
     const available = [];
-    for (let i = 1; i <= currentRaffle.total_tickets; i++) if (!soldNumbers.has(i)) available.push(i);
+    
+    for (let i = 1; i <= currentRaffle.total_tickets; i++) {
+        if (!occupiedNumbers.has(i)) available.push(i);
+    }
+    
     return available;
 }
 
