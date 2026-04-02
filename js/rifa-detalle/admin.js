@@ -56,7 +56,6 @@ function renderRecentTickets(tickets) {
     if (tickets.length === 0) { container.innerHTML = '<p>No hay boletos registrados</p>'; return; }
     container.innerHTML = `<table class="admin-table"><thead><tr><th>Boleto</th><th>Cliente</th><th>Teléfono</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>${tickets.map(t => `<tr><td>${t.ticket_number.toString().padStart(4, '0')}</td><td>${escapeHtml(t.user_name)}</td><td>${escapeHtml(t.user_phone)}</td><td>${new Date(t.purchase_date).toLocaleDateString()}</td><td><span class="status-badge status-${t.status}">${t.status === 'pending' ? 'Pendiente' : t.status === 'confirmed' ? 'Verificado' : 'Anulado'}</span></td></tr>`).join('')}</tbody></table>`;
 }
-
 function renderPendingVouchers(vouchers) {
     const container = document.getElementById('pendingVouchersTable');
     if (!container) return;
@@ -105,32 +104,56 @@ function renderPendingVouchers(vouchers) {
             <th>Total</th>
             <th>Fecha</th>
             <th>Acciones</th>
-        </tr>
-    </thead><tbody>
-        ${groupedVouchers.map(group => `
-            <tr>
-                <td><img src="${group.voucher_url}" class="voucher-preview" onclick="window.open('${group.voucher_url}', '_blank')" style="cursor:pointer;"></td>
-                <td>${escapeHtml(group.user_name)}</td>
-                <td>${escapeHtml(group.user_phone)}</td>
-                <td><span class="ticket-badge-group">${group.tickets.map(t => t.toString().padStart(4, '0')).join(', ')}</span></td>
-                <td><span class="ticket-count-badge">${group.tickets.length} boletos</span></td>
-                <td>RD$ ${group.total_amount.toLocaleString('es-DO')}</td>
-                <td>${new Date(group.purchase_date).toLocaleString()}</td>
-                <td class="action-buttons">
-                    <button class="action-btn approve" onclick="approveGroup('${group.id}', ${JSON.stringify(group.ticket_ids)})">Aprobar Todo</button>
-                    <button class="action-btn reject" onclick="rejectGroup('${group.id}', ${JSON.stringify(group.ticket_ids)})">Rechazar Todo</button>
-                    <button class="action-btn delete" onclick="deleteGroup('${group.id}', ${JSON.stringify(group.ticket_ids)})">Eliminar Todo</button>
-                </td>
-            </tr>
-        `).join('')}
-    </tbody></table>`;
+        </thead>
+        <tbody>
+            ${groupedVouchers.map(group => `
+                <tr data-group-id="${group.id}" data-ticket-ids='${JSON.stringify(group.ticket_ids)}'>
+                    <td><img src="${group.voucher_url}" class="voucher-preview" onclick="window.open('${group.voucher_url}', '_blank')" style="cursor:pointer;"></td>
+                    <td>${escapeHtml(group.user_name)}</td>
+                    <td>${escapeHtml(group.user_phone)}</td>
+                    <td><span class="ticket-badge-group">${group.tickets.map(t => t.toString().padStart(4, '0')).join(', ')}</span></td>
+                    <td><span class="ticket-count-badge">${group.tickets.length} boletos</span></td>
+                    <td>RD$ ${group.total_amount.toLocaleString('es-DO')}</td>
+                    <td>${new Date(group.purchase_date).toLocaleString()}</td>
+                    <td class="action-buttons">
+                        <button class="action-btn approve" onclick="approveGroup(${group.ticket_ids.length}, '${group.id}')">Aprobar Todo</button>
+                        <button class="action-btn reject" onclick="rejectGroup(${group.ticket_ids.length}, '${group.id}')">Rechazar Todo</button>
+                        <button class="action-btn delete" onclick="deleteGroup(${group.ticket_ids.length}, '${group.id}')">Eliminar Todo</button>
+                    </td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>`;
+    
+    // Almacenar los ticket_ids de cada grupo en el DOM para acceder después
+    groupedVouchers.forEach(group => {
+        const row = document.querySelector(`tr[data-group-id="${group.id}"]`);
+        if (row) {
+            row.setAttribute('data-ticket-ids', JSON.stringify(group.ticket_ids));
+        }
+    });
 }
-
-async function approveGroup(groupId, ticketIds) {
+async function approveGroup(ticketCount, groupId) {
     closeAdminPanelForAction();
+    
+    // Obtener los ticket_ids del grupo desde el DOM
+    const row = document.querySelector(`tr[data-group-id="${groupId}"]`);
+    if (!row) {
+        Swal.fire('Error', 'No se pudo identificar el grupo de boletos', 'error');
+        return;
+    }
+    
+    const ticketIdsJson = row.getAttribute('data-ticket-ids');
+    if (!ticketIdsJson) {
+        Swal.fire('Error', 'No se pudo identificar los boletos', 'error');
+        return;
+    }
+    
+    const ticketIds = JSON.parse(ticketIdsJson);
+    
     const result = await Swal.fire({
         title: '¿Aprobar compra completa?',
-        text: `Esta acción confirmará la compra de ${ticketIds.length} boleto(s) y los asignará automáticamente`,
+        text: `Esta acción confirmará la compra de ${ticketCount} boleto(s) y los asignará automáticamente`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Sí, aprobar todos',
@@ -166,7 +189,7 @@ async function approveGroup(groupId, ticketIds) {
                 document.getElementById('progressPercentage').textContent = percent + '%';
             }
             
-            Swal.fire('Aprobado', `Se han aprobado ${ticketIds.length} boleto(s) correctamente`, 'success');
+            Swal.fire('Aprobado', `Se han aprobado ${ticketCount} boleto(s) correctamente`, 'success');
             await loadAdminData();
             await loadRaffle();
         } catch (error) {
@@ -175,12 +198,27 @@ async function approveGroup(groupId, ticketIds) {
         }
     }
 }
-
-async function rejectGroup(groupId, ticketIds) {
+async function rejectGroup(ticketCount, groupId) {
     closeAdminPanelForAction();
+    
+    // Obtener los ticket_ids del grupo desde el DOM
+    const row = document.querySelector(`tr[data-group-id="${groupId}"]`);
+    if (!row) {
+        Swal.fire('Error', 'No se pudo identificar el grupo de boletos', 'error');
+        return;
+    }
+    
+    const ticketIdsJson = row.getAttribute('data-ticket-ids');
+    if (!ticketIdsJson) {
+        Swal.fire('Error', 'No se pudo identificar los boletos', 'error');
+        return;
+    }
+    
+    const ticketIds = JSON.parse(ticketIdsJson);
+    
     const result = await Swal.fire({
         title: '¿Rechazar compra completa?',
-        text: `Esta acción marcará ${ticketIds.length} boleto(s) como rechazados`,
+        text: `Esta acción marcará ${ticketCount} boleto(s) como rechazados`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí, rechazar todos',
@@ -197,7 +235,7 @@ async function rejectGroup(groupId, ticketIds) {
             
             if (error) throw error;
             
-            Swal.fire('Rechazado', `Se han rechazado ${ticketIds.length} boleto(s)`, 'success');
+            Swal.fire('Rechazado', `Se han rechazado ${ticketCount} boleto(s)`, 'success');
             await loadAdminData();
             await loadRaffle();
         } catch (error) {
@@ -206,12 +244,27 @@ async function rejectGroup(groupId, ticketIds) {
         }
     }
 }
-
-async function deleteGroup(groupId, ticketIds) {
+async function deleteGroup(ticketCount, groupId) {
     closeAdminPanelForAction();
+    
+    // Obtener los ticket_ids del grupo desde el DOM
+    const row = document.querySelector(`tr[data-group-id="${groupId}"]`);
+    if (!row) {
+        Swal.fire('Error', 'No se pudo identificar el grupo de boletos', 'error');
+        return;
+    }
+    
+    const ticketIdsJson = row.getAttribute('data-ticket-ids');
+    if (!ticketIdsJson) {
+        Swal.fire('Error', 'No se pudo identificar los boletos', 'error');
+        return;
+    }
+    
+    const ticketIds = JSON.parse(ticketIdsJson);
+    
     const result = await Swal.fire({
         title: '¿Eliminar compra completa?',
-        text: `Esta acción eliminará permanentemente ${ticketIds.length} boleto(s). No se puede deshacer.`,
+        text: `Esta acción eliminará permanentemente ${ticketCount} boleto(s). No se puede deshacer.`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí, eliminar todos',
@@ -247,7 +300,7 @@ async function deleteGroup(groupId, ticketIds) {
                 document.getElementById('progressPercentage').textContent = percent + '%';
             }
             
-            Swal.fire('Eliminado', `Se han eliminado ${ticketIds.length} boleto(s)`, 'success');
+            Swal.fire('Eliminado', `Se han eliminado ${ticketCount} boleto(s)`, 'success');
             await loadAdminData();
             await loadRaffle();
         } catch (error) {
