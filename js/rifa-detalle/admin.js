@@ -1,15 +1,43 @@
-// ==================== PANEL DE ADMINISTRACIÓN ====================
 async function loadAdminData() {
     if (!currentUser) return;
     
     try {
-        const { data: tickets, error } = await supabaseClient
-            .from('tickets')
-            .select('*')
-            .eq('raffle_id', currentRaffle.id)
-            .order('purchase_date', { ascending: false });
+        // 🔥 FORMA CORRECTA: Usar paginación con .range()
+        let allTicketsData = [];
+        let hasMore = true;
+        let page = 0;
+        const pageSize = 1000;
         
-        if (error) throw error;
+        while (hasMore) {
+            const from = page * pageSize;
+            const to = from + pageSize - 1;
+            
+            const { data: ticketsPage, error, count } = await supabaseClient
+                .from('tickets')
+                .select('*', { count: 'exact' })
+                .eq('raffle_id', currentRaffle.id)
+                .order('purchase_date', { ascending: false })
+                .range(from, to);
+            
+            if (error) throw error;
+            
+            if (ticketsPage && ticketsPage.length > 0) {
+                allTicketsData = allTicketsData.concat(ticketsPage);
+                console.log(`📊 Página ${page + 1}: ${ticketsPage.length} tickets (total acumulado: ${allTicketsData.length})`);
+            }
+            
+            // Si el total de tickets es menor que el tamaño de página, salir
+            if (!count || allTicketsData.length >= count) {
+                hasMore = false;
+            } else {
+                page++;
+            }
+        }
+        
+        const tickets = allTicketsData;
+        
+        console.log(`📊 Admin - Total de tickets en BD: ${allTicketsData.length}`);
+        console.log(`📊 Admin - Total de tickets cargados: ${tickets?.length || 0}`);
         
         allTickets = tickets;
         
@@ -18,6 +46,11 @@ async function loadAdminData() {
         const totalCollected = confirmedTickets.reduce((sum, t) => sum + (t.price || 0), 0);
         const percent = currentRaffle.total_tickets > 0 ? (confirmedTickets.length * 100 / currentRaffle.total_tickets).toFixed(1) : 0;
         
+        console.log(`✅ Admin - Confirmados: ${confirmedTickets.length}`);
+        console.log(`✅ Admin - Pendientes: ${pendingVouchers.length}`);
+        console.log(`✅ Admin - Porcentaje: ${percent}%`);
+        
+        // Actualizar estadísticas del panel
         document.getElementById('statTotalCollected').textContent = `RD$ ${totalCollected.toLocaleString('es-DO')}`;
         document.getElementById('statTicketsSold').textContent = confirmedTickets.length;
         document.getElementById('statPercentage').textContent = percent + '%';
@@ -48,6 +81,73 @@ async function loadAdminData() {
     } catch (error) {
         console.error('Error loading admin data:', error);
     }
+}
+
+// Función auxiliar para contar tickets confirmados (con paginación)
+async function getConfirmedCount(raffleId) {
+    let totalCount = 0;
+    let hasMore = true;
+    let page = 0;
+    const pageSize = 1000;
+    
+    while (hasMore) {
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+        
+        const { data: ticketsPage, error, count } = await supabaseClient
+            .from('tickets')
+            .select('id', { count: 'exact', head: true })
+            .eq('raffle_id', raffleId)
+            .eq('status', 'confirmed')
+            .range(from, to);
+        
+        if (error) throw error;
+        
+        if (ticketsPage && ticketsPage.length > 0) {
+            totalCount += ticketsPage.length;
+        }
+        
+        if (!count || totalCount >= count) {
+            hasMore = false;
+        } else {
+            page++;
+        }
+    }
+    
+    return totalCount;
+}
+
+async function getTotalSoldCount(raffleId) {
+    let totalCount = 0;
+    let hasMore = true;
+    let page = 0;
+    const pageSize = 1000;
+    
+    while (hasMore) {
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+        
+        const { data: ticketsPage, error, count } = await supabaseClient
+            .from('tickets')
+            .select('id', { count: 'exact', head: true })
+            .eq('raffle_id', raffleId)
+            .in('status', ['confirmed', 'pending'])
+            .range(from, to);
+        
+        if (error) throw error;
+        
+        if (ticketsPage && ticketsPage.length > 0) {
+            totalCount += ticketsPage.length;
+        }
+        
+        if (!count || totalCount >= count) {
+            hasMore = false;
+        } else {
+            page++;
+        }
+    }
+    
+    return totalCount;
 }
 
 function renderRecentTickets(tickets) {
@@ -136,7 +236,6 @@ function renderPendingVouchers(vouchers) {
 async function approveGroup(ticketCount, groupId) {
     closeAdminPanelForAction();
     
-    // Obtener los ticket_ids del grupo desde el DOM
     const row = document.querySelector(`tr[data-group-id="${groupId}"]`);
     if (!row) {
         Swal.fire('Error', 'No se pudo identificar el grupo de boletos', 'error');
@@ -153,7 +252,7 @@ async function approveGroup(ticketCount, groupId) {
     
     const result = await Swal.fire({
         title: '¿Aprobar compra completa?',
-        text: `Esta acción confirmará la compra de ${ticketCount} boleto(s) y los asignará automáticamente`,
+        text: `Esta acción confirmará la compra de ${ticketCount} boleto(s)`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Sí, aprobar todos',
@@ -162,46 +261,75 @@ async function approveGroup(ticketCount, groupId) {
     
     if (result.isConfirmed) {
         try {
-            // Actualizar todos los tickets del grupo a confirmed
-            const { error } = await supabaseClient
+            // 1. Actualizar tickets a confirmed
+            const { error: ticketsError } = await supabaseClient
                 .from('tickets')
-                .update({ status: 'confirmed', updated_at: new Date() })
+                .update({ 
+                    status: 'confirmed', 
+                    updated_at: new Date().toISOString() 
+                })
                 .in('id', ticketIds);
             
-            if (error) throw error;
+            if (ticketsError) throw ticketsError;
             
-            // Actualizar contador de boletos vendidos en la rifa
-            const { data: confirmedTickets, error: countError } = await supabaseClient
+            // 2. CONTAR TODOS los tickets confirmados (SIN LÍMITE)
+            const { count: newSoldCount, error: countError } = await supabaseClient
                 .from('tickets')
-                .select('id')
+                .select('id', { count: 'exact', head: true })
                 .eq('raffle_id', currentRaffle.id)
-                .eq('status', 'confirmed');
+                .eq('status', 'confirmed')
+                .range(0, 99999);
             
-            if (!countError) {
-                await supabaseClient
-                    .from('raffles')
-                    .update({ sold_tickets: confirmedTickets.length })
-                    .eq('id', currentRaffle.id);
-                currentRaffle.sold_tickets = confirmedTickets.length;
-                const percent = (confirmedTickets.length * 100 / currentRaffle.total_tickets).toFixed(1);
-                document.getElementById('progressFill').style.width = percent + '%';
-                document.getElementById('progressPercentDisplay').textContent = percent + '%';
-                document.getElementById('progressPercentage').textContent = percent + '%';
-            }
+            if (countError) throw countError;
             
-            Swal.fire('Aprobado', `Se han aprobado ${ticketCount} boleto(s) correctamente`, 'success');
+            console.log(`📊 Total confirmados después de aprobar: ${newSoldCount}`);
+            
+            // 3. ACTUALIZAR sold_tickets en la rifa
+            const { error: raffleError } = await supabaseClient
+                .from('raffles')
+                .update({ 
+                    sold_tickets: newSoldCount,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', currentRaffle.id);
+            
+            if (raffleError) throw raffleError;
+            
+            // 4. Actualizar variable global
+            currentRaffle.sold_tickets = newSoldCount;
+            
+            // 5. Actualizar UI del progreso
+            const percent = (newSoldCount * 100 / currentRaffle.total_tickets).toFixed(1);
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentDisplay = document.getElementById('progressPercentDisplay');
+            const progressPercentage = document.getElementById('progressPercentage');
+            
+            if (progressFill) progressFill.style.width = percent + '%';
+            if (progressPercentDisplay) progressPercentDisplay.textContent = percent + '%';
+            if (progressPercentage) progressPercentage.textContent = percent + '%';
+            
+            // 6. Recargar datos del admin
             await loadAdminData();
-            await loadRaffle();
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Compra aprobada!',
+                text: `✅ ${ticketCount} boleto(s) confirmados\n📊 Progreso: ${percent}% (${newSoldCount}/${currentRaffle.total_tickets})`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
         } catch (error) {
-            console.error('Error approving group:', error);
-            Swal.fire('Error', 'No se pudo aprobar la compra', 'error');
+            console.error('Error aprobando grupo:', error);
+            Swal.fire('Error', `No se pudo aprobar: ${error.message}`, 'error');
         }
     }
 }
+
 async function rejectGroup(ticketCount, groupId) {
     closeAdminPanelForAction();
     
-    // Obtener los ticket_ids del grupo desde el DOM
     const row = document.querySelector(`tr[data-group-id="${groupId}"]`);
     if (!row) {
         Swal.fire('Error', 'No se pudo identificar el grupo de boletos', 'error');
@@ -227,23 +355,72 @@ async function rejectGroup(ticketCount, groupId) {
     
     if (result.isConfirmed) {
         try {
-            // Actualizar todos los tickets del grupo a cancelled
-            const { error } = await supabaseClient
+            // 1. Actualizar tickets a cancelled
+            const { error: ticketsError } = await supabaseClient
                 .from('tickets')
-                .update({ status: 'cancelled', updated_at: new Date() })
+                .update({ 
+                    status: 'cancelled', 
+                    updated_at: new Date().toISOString() 
+                })
                 .in('id', ticketIds);
             
-            if (error) throw error;
+            if (ticketsError) throw ticketsError;
             
-            Swal.fire('Rechazado', `Se han rechazado ${ticketCount} boleto(s)`, 'success');
+            // 2. CONTAR TODOS los tickets confirmados (SIN LÍMITE)
+            const { count: newSoldCount, error: countError } = await supabaseClient
+                .from('tickets')
+                .select('id', { count: 'exact', head: true })
+                .eq('raffle_id', currentRaffle.id)
+                .eq('status', 'confirmed')
+                .range(0, 99999);
+            
+            if (countError) throw countError;
+            
+            console.log(`📊 Total confirmados después de rechazar: ${newSoldCount}`);
+            
+            // 3. ACTUALIZAR sold_tickets en la rifa
+            const { error: raffleError } = await supabaseClient
+                .from('raffles')
+                .update({ 
+                    sold_tickets: newSoldCount,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', currentRaffle.id);
+            
+            if (raffleError) throw raffleError;
+            
+            // 4. Actualizar variable global
+            currentRaffle.sold_tickets = newSoldCount;
+            
+            // 5. Actualizar UI del progreso
+            const percent = (newSoldCount * 100 / currentRaffle.total_tickets).toFixed(1);
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentDisplay = document.getElementById('progressPercentDisplay');
+            const progressPercentage = document.getElementById('progressPercentage');
+            
+            if (progressFill) progressFill.style.width = percent + '%';
+            if (progressPercentDisplay) progressPercentDisplay.textContent = percent + '%';
+            if (progressPercentage) progressPercentage.textContent = percent + '%';
+            
+            // 6. Recargar datos del admin
             await loadAdminData();
-            await loadRaffle();
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Compra rechazada!',
+                text: `❌ ${ticketCount} boleto(s) rechazados\n📊 Progreso: ${percent}% (${newSoldCount}/${currentRaffle.total_tickets})`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
         } catch (error) {
-            console.error('Error rejecting group:', error);
-            Swal.fire('Error', 'No se pudo rechazar la compra', 'error');
+            console.error('Error rechazando grupo:', error);
+            Swal.fire('Error', `No se pudo rechazar: ${error.message}`, 'error');
         }
     }
 }
+
 async function deleteGroup(ticketCount, groupId) {
     closeAdminPanelForAction();
     
@@ -361,9 +538,10 @@ async function getAvailableNumbers() {
     return available;
 }
 
-// Funciones de acción que cierran el panel antes de mostrar la modal
+
 async function reassignTicket(ticketId) {
     closeAdminPanelForAction();
+    
     const result = await Swal.fire({
         title: '¿Reasignar boleto?',
         text: 'Se le asignará un nuevo número de boleto automáticamente de los disponibles',
@@ -372,20 +550,39 @@ async function reassignTicket(ticketId) {
         confirmButtonText: 'Sí, reasignar',
         cancelButtonText: 'Cancelar'
     });
+    
     if (result.isConfirmed) {
         try {
             const availableNumbers = await getAvailableNumbers();
-            if (availableNumbers.length === 0) { Swal.fire('Error', 'No hay números de boleto disponibles', 'error'); return; }
+            if (availableNumbers.length === 0) { 
+                Swal.fire('Error', 'No hay números de boleto disponibles', 'error'); 
+                return; 
+            }
+            
             const randomIndex = Math.floor(Math.random() * availableNumbers.length);
             const newNumber = availableNumbers[randomIndex];
+            
             const { error } = await supabaseClient
                 .from('tickets')
-                .update({ ticket_number: newNumber, updated_at: new Date() })
+                .update({ 
+                    ticket_number: newNumber, 
+                    updated_at: new Date().toISOString() 
+                })
                 .eq('id', ticketId);
+            
             if (error) throw error;
-            Swal.fire('Reasignado', `Boleto reasignado a ${newNumber.toString().padStart(4, '0')}`, 'success');
+            
+            // Recargar datos del admin
             await loadAdminData();
-            await loadRaffle();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Reasignado',
+                text: `Boleto reasignado a ${newNumber.toString().padStart(4, '0')}`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
         } catch (error) {
             console.error('Error reassigning ticket:', error);
             Swal.fire('Error', 'No se pudo reasignar el boleto', 'error');
@@ -395,6 +592,7 @@ async function reassignTicket(ticketId) {
 
 async function approveTicket(ticketId) {
     closeAdminPanelForAction();
+    
     const result = await Swal.fire({
         title: '¿Aprobar compra?',
         text: 'Esta acción confirmará la compra y asignará los boletos',
@@ -403,41 +601,78 @@ async function approveTicket(ticketId) {
         confirmButtonText: 'Sí, aprobar',
         cancelButtonText: 'Cancelar'
     });
+    
     if (result.isConfirmed) {
         try {
-            const { error } = await supabaseClient
+            // 1. Actualizar ticket a confirmed
+            const { error: ticketsError } = await supabaseClient
                 .from('tickets')
-                .update({ status: 'confirmed', updated_at: new Date() })
+                .update({ 
+                    status: 'confirmed', 
+                    updated_at: new Date().toISOString() 
+                })
                 .eq('id', ticketId);
-            if (error) throw error;
-            const { data: confirmedTickets, error: countError } = await supabaseClient
+            
+            if (ticketsError) throw ticketsError;
+            
+            // 2. CONTAR TODOS los tickets confirmados (SIN LÍMITE)
+            const { count: newSoldCount, error: countError } = await supabaseClient
                 .from('tickets')
-                .select('id')
+                .select('id', { count: 'exact', head: true })
                 .eq('raffle_id', currentRaffle.id)
-                .eq('status', 'confirmed');
-            if (!countError) {
-                await supabaseClient
-                    .from('raffles')
-                    .update({ sold_tickets: confirmedTickets.length })
-                    .eq('id', currentRaffle.id);
-                currentRaffle.sold_tickets = confirmedTickets.length;
-                const percent = (confirmedTickets.length * 100 / currentRaffle.total_tickets).toFixed(1);
-                document.getElementById('progressFill').style.width = percent + '%';
-                document.getElementById('progressPercentDisplay').textContent = percent + '%';
-                document.getElementById('progressPercentage').textContent = percent + '%';
-            }
-            Swal.fire('Aprobado', 'La compra ha sido aprobada', 'success');
+                .eq('status', 'confirmed')
+                .range(0, 99999);
+            
+            if (countError) throw countError;
+            
+            console.log(`📊 Total confirmados después de aprobar: ${newSoldCount}`);
+            
+            // 3. ACTUALIZAR sold_tickets en la rifa
+            const { error: raffleError } = await supabaseClient
+                .from('raffles')
+                .update({ 
+                    sold_tickets: newSoldCount,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', currentRaffle.id);
+            
+            if (raffleError) throw raffleError;
+            
+            // 4. Actualizar variable global
+            currentRaffle.sold_tickets = newSoldCount;
+            
+            // 5. Actualizar UI del progreso
+            const percent = (newSoldCount * 100 / currentRaffle.total_tickets).toFixed(1);
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentDisplay = document.getElementById('progressPercentDisplay');
+            const progressPercentage = document.getElementById('progressPercentage');
+            
+            if (progressFill) progressFill.style.width = percent + '%';
+            if (progressPercentDisplay) progressPercentDisplay.textContent = percent + '%';
+            if (progressPercentage) progressPercentage.textContent = percent + '%';
+            
+            // 6. Recargar datos del admin
             await loadAdminData();
-            await loadRaffle();
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Boleto aprobado!',
+                text: `📊 Progreso: ${percent}% (${newSoldCount}/${currentRaffle.total_tickets})`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
         } catch (error) {
-            console.error('Error approving ticket:', error);
-            Swal.fire('Error', 'No se pudo aprobar la compra', 'error');
+            console.error('Error aprobando ticket:', error);
+            Swal.fire('Error', `No se pudo aprobar: ${error.message}`, 'error');
         }
     }
 }
 
 async function rejectTicket(ticketId) {
     closeAdminPanelForAction();
+    
     const result = await Swal.fire({
         title: '¿Rechazar compra?',
         text: 'Esta acción marcará la compra como rechazada',
@@ -446,25 +681,78 @@ async function rejectTicket(ticketId) {
         confirmButtonText: 'Sí, rechazar',
         cancelButtonText: 'Cancelar'
     });
+    
     if (result.isConfirmed) {
         try {
-            const { error } = await supabaseClient
+            // 1. Actualizar ticket a cancelled
+            const { error: ticketsError } = await supabaseClient
                 .from('tickets')
-                .update({ status: 'cancelled', updated_at: new Date() })
+                .update({ 
+                    status: 'cancelled', 
+                    updated_at: new Date().toISOString() 
+                })
                 .eq('id', ticketId);
-            if (error) throw error;
-            Swal.fire('Rechazado', 'La compra ha sido rechazada', 'success');
+            
+            if (ticketsError) throw ticketsError;
+            
+            // 2. CONTAR TODOS los tickets confirmados (SIN LÍMITE)
+            const { count: newSoldCount, error: countError } = await supabaseClient
+                .from('tickets')
+                .select('id', { count: 'exact', head: true })
+                .eq('raffle_id', currentRaffle.id)
+                .eq('status', 'confirmed')
+                .range(0, 99999);
+            
+            if (countError) throw countError;
+            
+            console.log(`📊 Total confirmados después de rechazar: ${newSoldCount}`);
+            
+            // 3. ACTUALIZAR sold_tickets en la rifa
+            const { error: raffleError } = await supabaseClient
+                .from('raffles')
+                .update({ 
+                    sold_tickets: newSoldCount,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', currentRaffle.id);
+            
+            if (raffleError) throw raffleError;
+            
+            // 4. Actualizar variable global
+            currentRaffle.sold_tickets = newSoldCount;
+            
+            // 5. Actualizar UI del progreso
+            const percent = (newSoldCount * 100 / currentRaffle.total_tickets).toFixed(1);
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentDisplay = document.getElementById('progressPercentDisplay');
+            const progressPercentage = document.getElementById('progressPercentage');
+            
+            if (progressFill) progressFill.style.width = percent + '%';
+            if (progressPercentDisplay) progressPercentDisplay.textContent = percent + '%';
+            if (progressPercentage) progressPercentage.textContent = percent + '%';
+            
+            // 6. Recargar datos del admin
             await loadAdminData();
-            await loadRaffle();
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Boleto rechazado!',
+                text: `📊 Progreso: ${percent}% (${newSoldCount}/${currentRaffle.total_tickets})`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
         } catch (error) {
-            console.error('Error rejecting ticket:', error);
-            Swal.fire('Error', 'No se pudo rechazar la compra', 'error');
+            console.error('Error rechazando ticket:', error);
+            Swal.fire('Error', `No se pudo rechazar: ${error.message}`, 'error');
         }
     }
 }
 
 async function deleteTicket(ticketId) {
     closeAdminPanelForAction();
+    
     const result = await Swal.fire({
         title: '¿Eliminar boleto?',
         text: 'Esta acción no se puede deshacer',
@@ -473,32 +761,65 @@ async function deleteTicket(ticketId) {
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
     });
+    
     if (result.isConfirmed) {
         try {
+            // 1. Eliminar el ticket
             const { error } = await supabaseClient
                 .from('tickets')
                 .delete()
                 .eq('id', ticketId);
+            
             if (error) throw error;
-            const { data: confirmedTickets, error: countError } = await supabaseClient
+            
+            // 2. CONTAR TODOS los tickets confirmados (SIN LÍMITE)
+            const { count: newSoldCount, error: countError } = await supabaseClient
                 .from('tickets')
-                .select('id')
+                .select('id', { count: 'exact', head: true })
                 .eq('raffle_id', currentRaffle.id)
-                .eq('status', 'confirmed');
-            if (!countError) {
-                await supabaseClient
-                    .from('raffles')
-                    .update({ sold_tickets: confirmedTickets.length })
-                    .eq('id', currentRaffle.id);
-                currentRaffle.sold_tickets = confirmedTickets.length;
-                const percent = (confirmedTickets.length * 100 / currentRaffle.total_tickets).toFixed(1);
-                document.getElementById('progressFill').style.width = percent + '%';
-                document.getElementById('progressPercentDisplay').textContent = percent + '%';
-                document.getElementById('progressPercentage').textContent = percent + '%';
-            }
-            Swal.fire('Eliminado', 'El boleto ha sido eliminado', 'success');
+                .eq('status', 'confirmed')
+                .range(0, 99999);
+            
+            if (countError) throw countError;
+            
+            console.log(`📊 Nuevo conteo después de eliminar: ${newSoldCount}`);
+            
+            // 3. ACTUALIZAR sold_tickets en la rifa
+            const { error: raffleError } = await supabaseClient
+                .from('raffles')
+                .update({ 
+                    sold_tickets: newSoldCount,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', currentRaffle.id);
+            
+            if (raffleError) throw raffleError;
+            
+            // 4. Actualizar variable global
+            currentRaffle.sold_tickets = newSoldCount;
+            
+            // 5. Actualizar UI del progreso
+            const percent = (newSoldCount * 100 / currentRaffle.total_tickets).toFixed(1);
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentDisplay = document.getElementById('progressPercentDisplay');
+            const progressPercentage = document.getElementById('progressPercentage');
+            
+            if (progressFill) progressFill.style.width = percent + '%';
+            if (progressPercentDisplay) progressPercentDisplay.textContent = percent + '%';
+            if (progressPercentage) progressPercentage.textContent = percent + '%';
+            
+            // 6. Recargar datos del admin (FORZANDO ACTUALIZACIÓN)
             await loadAdminData();
-            await loadRaffle();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Eliminado',
+                text: `El boleto ha sido eliminado\n📊 Progreso: ${percent}% (${newSoldCount}/${currentRaffle.total_tickets})`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
         } catch (error) {
             console.error('Error deleting ticket:', error);
             Swal.fire('Error', 'No se pudo eliminar el boleto', 'error');
