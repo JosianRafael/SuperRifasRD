@@ -26,13 +26,12 @@ async function loadRaffle() {
             .eq('status', 'confirmed')
             .limit(99999);  // 👈 Usar .limit() en lugar de .range()
         
-        console.log(`📊 Conteo real de confirmados: ${realSoldCount || 0}`);
-        console.log(`📊 sold_tickets en DB: ${currentRaffle.sold_tickets}`);
+       
         
         if (!countError && realSoldCount !== null) {
             // Si hay diferencia, actualizar la tabla raffles
             if (realSoldCount !== currentRaffle.sold_tickets) {
-                console.log(`🔄 Sincronizando: ${currentRaffle.sold_tickets} -> ${realSoldCount}`);
+             //   console.log(`🔄 Sincronizando: ${currentRaffle.sold_tickets} -> ${realSoldCount}`);
                 
                 await supabaseClient
                     .from('raffles')
@@ -73,7 +72,7 @@ async function loadRaffle() {
             ? (currentRaffle.sold_tickets * 100 / currentRaffle.total_tickets).toFixed(1) 
             : 0;
         
-        console.log(`📊 Porcentaje final: ${percent}% (${currentRaffle.sold_tickets}/${currentRaffle.total_tickets})`);
+      
         
         const progressFill = document.getElementById('progressFill');
         const progressPercentDisplay = document.getElementById('progressPercentDisplay');
@@ -119,8 +118,7 @@ async function loadRaffle() {
             loadAdminData();
         }
         
-        console.log(`✅ Rifa cargada correctamente: ${currentRaffle.name}`);
-        console.log(`📊 Progreso: ${currentRaffle.sold_tickets}/${currentRaffle.total_tickets} (${percent}%)`);
+    
         
     } catch (error) {
         console.error('Error loading raffle:', error);

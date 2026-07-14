@@ -23,7 +23,7 @@ async function loadAdminData() {
             
             if (ticketsPage && ticketsPage.length > 0) {
                 allTicketsData = allTicketsData.concat(ticketsPage);
-                console.log(`📊 Página ${page + 1}: ${ticketsPage.length} tickets (total acumulado: ${allTicketsData.length})`);
+               
             }
             
             // Si el total de tickets es menor que el tamaño de página, salir
@@ -36,8 +36,7 @@ async function loadAdminData() {
         
         const tickets = allTicketsData;
         
-        console.log(`📊 Admin - Total de tickets en BD: ${allTicketsData.length}`);
-        console.log(`📊 Admin - Total de tickets cargados: ${tickets?.length || 0}`);
+       
         
         allTickets = tickets;
         
@@ -46,9 +45,7 @@ async function loadAdminData() {
         const totalCollected = confirmedTickets.reduce((sum, t) => sum + (t.price || 0), 0);
         const percent = currentRaffle.total_tickets > 0 ? (confirmedTickets.length * 100 / currentRaffle.total_tickets).toFixed(1) : 0;
         
-        console.log(`✅ Admin - Confirmados: ${confirmedTickets.length}`);
-        console.log(`✅ Admin - Pendientes: ${pendingVouchers.length}`);
-        console.log(`✅ Admin - Porcentaje: ${percent}%`);
+    
         
         // Actualizar estadísticas del panel
         document.getElementById('statTotalCollected').textContent = `RD$ ${totalCollected.toLocaleString('es-DO')}`;
@@ -282,7 +279,7 @@ async function approveGroup(ticketCount, groupId) {
             
             if (countError) throw countError;
             
-            console.log(`📊 Total confirmados después de aprobar: ${newSoldCount}`);
+          
             
             // 3. ACTUALIZAR sold_tickets en la rifa
             const { error: raffleError } = await supabaseClient
@@ -375,8 +372,7 @@ async function rejectGroup(ticketCount, groupId) {
                 .range(0, 99999);
             
             if (countError) throw countError;
-            
-            console.log(`📊 Total confirmados después de rechazar: ${newSoldCount}`);
+          
             
             // 3. ACTUALIZAR sold_tickets en la rifa
             const { error: raffleError } = await supabaseClient
@@ -625,7 +621,7 @@ async function approveTicket(ticketId) {
             
             if (countError) throw countError;
             
-            console.log(`📊 Total confirmados después de aprobar: ${newSoldCount}`);
+          
             
             // 3. ACTUALIZAR sold_tickets en la rifa
             const { error: raffleError } = await supabaseClient
@@ -705,7 +701,7 @@ async function rejectTicket(ticketId) {
             
             if (countError) throw countError;
             
-            console.log(`📊 Total confirmados después de rechazar: ${newSoldCount}`);
+          
             
             // 3. ACTUALIZAR sold_tickets en la rifa
             const { error: raffleError } = await supabaseClient
@@ -782,7 +778,7 @@ async function deleteTicket(ticketId) {
             
             if (countError) throw countError;
             
-            console.log(`📊 Nuevo conteo después de eliminar: ${newSoldCount}`);
+          
             
             // 3. ACTUALIZAR sold_tickets en la rifa
             const { error: raffleError } = await supabaseClient
