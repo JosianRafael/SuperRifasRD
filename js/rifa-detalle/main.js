@@ -1,4 +1,3 @@
-// ==================== BUSCADOR PÚBLICO ====================
 async function searchTickets() {
     const searchValue = document.getElementById('searchInput').value.trim();
     const searchResultInfo = document.getElementById('searchResultInfo');
@@ -13,51 +12,87 @@ async function searchTickets() {
     showButtonLoading('btnSearch', 'Buscando...');
     
     try {
-        let query = supabaseClient
-            .from('tickets')
-            .select('*')
-            .eq('raffle_id', currentRaffle.id);
+        // 🔥 IMPORTANTE: Obtener TODOS los tickets SIN límite
+        // Usamos range(0, 99999) para asegurar que no haya límite
+        let allTickets = [];
+        let hasMore = true;
+        let page = 0;
+        const pageSize = 1000;
+        
+        while (hasMore) {
+            const from = page * pageSize;
+            const to = from + pageSize - 1;
+            
+            const { data: ticketsPage, error, count } = await supabaseClient
+                .from('tickets')
+                .select('*', { count: 'exact' })
+                .eq('raffle_id', currentRaffle.id)
+                .range(from, to);
+            
+            if (error) throw error;
+            
+            if (ticketsPage && ticketsPage.length > 0) {
+                allTickets = allTickets.concat(ticketsPage);
+                console.log(`📦 Página ${page}: ${ticketsPage.length} tickets, total: ${allTickets.length}`);
+            }
+            
+            // Si no hay más datos o alcanzamos el total
+            if (!count || allTickets.length >= count) {
+                hasMore = false;
+            } else {
+                page++;
+            }
+        }
+        
+        console.log(`✅ Total tickets encontrados: ${allTickets.length}`);
         
         let foundTickets = [];
         let userInfoData = null;
         
-        // Determinar si es número de boleto o teléfono
-        if (searchValue.match(/^\d+$/)) {
-            // Si es solo números y tiene menos de 8 dígitos, es probable que sea un número de boleto
-            if (searchValue.length <= 7) {
-                query = query.eq('ticket_number', parseInt(searchValue));
-                const { data: tickets, error } = await query;
-                if (error) throw error;
-                foundTickets = tickets;
-                if (foundTickets.length > 0) userInfoData = foundTickets[0];
-            } else {
-                // Si tiene más de 7 dígitos, buscar por teléfono sin importar el código de país
-                const { data: ticketsByPhone, error: phoneError } = await supabaseClient
-                    .from('tickets')
-                    .select('*')
-                    .eq('raffle_id', currentRaffle.id);
-                
-                if (phoneError) throw phoneError;
-                
-                // Filtrar los tickets donde el user_phone termine con el número buscado
-                const filteredTickets = ticketsByPhone.filter(ticket => {
-                    const phone = ticket.user_phone;
-                    const cleanPhone = phone.replace(/^\+/, '').replace(/^\d+\s?/, '');
-                    return phone.endsWith(searchValue) || cleanPhone === searchValue;
-                });
-                
-                foundTickets = filteredTickets;
-                if (foundTickets.length > 0) userInfoData = foundTickets[0];
-            }
+        // Función para normalizar teléfonos (eliminar +, espacios, guiones, etc.)
+        const normalizePhone = (phone) => {
+            if (!phone) return '';
+            return phone.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '').trim();
+        };
+        
+        // Normalizar el valor de búsqueda
+        const normalizedSearch = normalizePhone(searchValue);
+        
+        // Verificar si es un número de boleto (solo dígitos y <= 7 caracteres)
+        const isTicketNumber = searchValue.match(/^\d+$/) && searchValue.length <= 7;
+        
+        if (isTicketNumber) {
+            // Buscar por número de boleto exacto
+            const ticketNum = parseInt(searchValue);
+            foundTickets = allTickets.filter(t => t.ticket_number === ticketNum);
+            if (foundTickets.length > 0) userInfoData = foundTickets[0];
+            console.log(`🔍 Buscando por número: ${ticketNum}, encontrados: ${foundTickets.length}`);
         } else {
-            // Si no son solo números, buscar por teléfono
-            query = query.eq('user_phone', searchValue);
-            const { data: tickets, error } = await query;
-            if (error) throw error;
-            foundTickets = tickets;
+            // Buscar por teléfono (normalizado)
+            // Caso 1: Coincidencia exacta normalizada
+            // Caso 2: El teléfono termina con el número buscado
+            // Caso 3: El teléfono contiene el número buscado
+            foundTickets = allTickets.filter(ticket => {
+                const normalizedPhone = normalizePhone(ticket.user_phone);
+                const match = normalizedPhone === normalizedSearch ||
+                              normalizedPhone.endsWith(normalizedSearch) ||
+                              ticket.user_phone.includes(searchValue) ||
+                              normalizedPhone.includes(normalizedSearch);
+                
+                // Debug: Mostrar qué tickets están siendo filtrados
+                if (match) {
+                    console.log(`✅ Match: ${ticket.user_phone} (${normalizedPhone}) vs ${normalizedSearch}`);
+                }
+                
+                return match;
+            });
+            
+            console.log(`🔍 Buscando por teléfono: ${searchValue}, normalizado: ${normalizedSearch}, encontrados: ${foundTickets.length}`);
+            
             if (foundTickets.length > 0) userInfoData = foundTickets[0];
         }
         
+        // Mostrar resultados
         if (foundTickets && foundTickets.length > 0) {
             const statusColors = { 'pending': '#ff9800', 'confirmed': '#1c8200', 'cancelled': '#dc3545' };
             
