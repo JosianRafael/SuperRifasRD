@@ -25,16 +25,15 @@ function updateQuantity(delta) {
         document.getElementById('maxPerPersonWarning').style.display = 'block';
         Swal.fire('Límite alcanzado', `Máximo ${maxAllowed} boletos por persona en esta rifa`, 'warning');
     }
-}
-async function getRandomAvailableTickets(quantity) {
+}async function getRandomAvailableTickets(quantity) {
     if (!currentRaffle) return null;
     
-    // Obtener TODOS los boletos que NO están disponibles (confirmed, pending, cancelled)
+    // Obtener TODOS los boletos que NO están disponibles (confirmed, pending)
     const { data: occupiedTickets, error } = await supabaseClient
         .from('tickets')
         .select('ticket_number')
         .eq('raffle_id', currentRaffle.id)
-        .in('status', ['confirmed', 'pending']);  // ← Incluir pending también
+        .in('status', ['confirmed', 'pending']);  // ← Incluir pending es clave
     
     if (error) {
         console.error('Error getting occupied tickets:', error);
@@ -58,7 +57,6 @@ async function getRandomAvailableTickets(quantity) {
         [available[i], available[j]] = [available[j], available[i]];
     }
     
-    // Devolver como strings con padding de 4 dígitos
     return available.slice(0, quantity).map(num => num.toString().padStart(4, '0'));
 }
 
@@ -248,11 +246,18 @@ async function confirmPurchase() {
             created_at: new Date()
         }));
         
-        const { error: ticketsError } = await supabaseClient
+             const { error: ticketsError } = await supabaseClient
             .from('tickets')
             .insert(ticketsData);
         
-        if (ticketsError) throw ticketsError;
+        // 🔥 NUEVO MANEJO DE ERROR PARA DUPLICADOS
+        if (ticketsError) {
+            // El código 23505 significa "Unique Violation" (número duplicado)
+            if (ticketsError.code === '23505') {
+                throw new Error('DUPLICADO');
+            }
+            throw ticketsError;
+        }
         
         const newSoldTickets = currentRaffle.sold_tickets + currentQuantity;
         await supabaseClient
@@ -299,9 +304,22 @@ async function confirmPurchase() {
         
         if (currentUser) await loadAdminData();
         
-    } catch (error) {
+        } catch (error) {
         console.error('Error saving purchase:', error);
-        Swal.fire('Error', 'No se pudo procesar la compra', 'error');
+        
+        // 🔥 SI EL ERROR ES POR DUPLICADO, AVISAR AL USUARIO
+        if (error.message === 'DUPLICADO') {
+            Swal.fire({
+                icon: 'warning',
+                title: '¡Número ocupado!',
+                text: 'Alguien más acaba de comprar uno de los números que seleccionaste. Por favor, intenta de nuevo.',
+                confirmButtonText: 'Reintentar'
+            });
+            // Opcional: Recargar la página para que vea los números actualizados
+            // location.reload(); 
+        } else {
+            Swal.fire('Error', 'No se pudo procesar la compra', 'error');
+        }
     } finally {
         hideButtonLoading('btnConfirm');
     }
